@@ -1,0 +1,57 @@
+[tool.rye.scripts]
+check = "basedpyright"
+
+[project]
+name = "hatch-una"
+dynamic = ["version"]
+description = "Python monorepo tooling"
+authors = [
+    { name = "Chris Arderne", email = "chris@rdrn.me" }
+]
+readme = "README.md"
+license = {text = "MIT License"}
+requires-python = ">= 3.11"
+keywords = ["rye", "monorepo", "build", "python"]
+
+classifiers = [
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: Unix",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+
+dependencies = ["hatchling"]
+
+[project.urls]
+homepage = "https://github.com/carderne/una"
+repository = "https://github.com/carderne/una"
+
+[project.entry-points.hatch]
+una-build = "hatch_una.hatch_build"
+una-meta = "hatch_una.hatch_meta"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+raw-options = { root = "../.." }
+
+[tool.basedpyright]
+venvPath = "../.."
+venv = ".venv"
+pythonVersion = "3.11"
+strict = ["**/*.py"]
+reportUnnecessaryTypeIgnoreComment = true
+reportImplicitOverride = false
+reportUnusedCallResult = false
+enableTypeIgnoreComments = true

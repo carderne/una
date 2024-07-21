@@ -3,3 +3,5 @@ __pycache__
 .mypy_cache
 dist
 .coverage
+.hypothesis
+.obsidian

@@ -1,0 +1,51 @@
+name: pr
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+concurrency:
+  group: pr-${{ github.event.number }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      python: ${{ steps.filter.outputs.python }}
+    steps:
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            python:
+            - '**/*.py'
+            - 'pyproject.toml'
+
+  test-python:
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.python == 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: eifinger/setup-rye@v3
+        id: setup-rye
+        with:
+          version: '0.38.0'
+      - run: rye pin 3.12.3
+      - name: Sync
+        run: |
+          rye sync
+          if [[ $(git diff --stat requirements.lock) != '' ]]; then
+            echo 'Rye lockfile not up-to-date'
+            git diff requirements.lock
+            exit 1
+          fi
+      - run: rye fmt --check
+      - run: rye lint
+      - run: rye run check
+      - run: rye run test
+      - run: rye run check
+        working-directory: plugins/hatch
