@@ -1,0 +1,91 @@
+[tool.rye.scripts]
+fmt = "rye fmt"
+lint = "rye lint --fix"
+check = "basedpyright"
+test = "rye test"
+all = { chain = ["fmt", "lint", "check", "test"] }
+
+[project]
+name = "una"
+dynamic = ["version"]
+description = "Python monorepo tooling"
+authors = [
+    { name = "Chris Arderne", email = "chris@rdrn.me" }
+]
+readme = "README.md"
+license = {text = "MIT License"}
+requires-python = ">= 3.10"
+keywords = ["rye", "monorepo", "build", "python"]
+
+classifiers = [
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: Unix",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+  "dataclasses-json ~= 0.6.7",
+  "hatchling ~= 1.21",
+  "rich ~= 13.1",
+  "tomlkit ~= 0.10",
+  "typer ~= 0.8",
+]
+
+[project.urls]
+homepage = "https://github.com/carderne/una"
+repository = "https://github.com/carderne/una"
+
+[project.scripts]
+una = "una.cli:app"
+
+[project.entry-points.hatch]
+una-build = "una.hatch_build"
+una-meta = "una.hatch_meta"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "pytest~=8.3.1",
+    "vulture~=2.11",
+    "basedpyright~=1.15.2",
+    "hypothesis~=6.111.0",
+]
+
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["una"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["A", "E", "F", "I", "N", "T100", "UP", "ANN401"]
+ignore = ["F841"]  # pyright does this
+
+[tool.ruff.lint.isort]
+known-first-party = ["una"]
+
+[tool.basedpyright]
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.10"
+strict = ["**/*.py"]
+reportUnnecessaryTypeIgnoreComment = true
+reportImplicitOverride = false
+reportUnusedCallResult = false
+enableTypeIgnoreComments = true
+
+[tool.pytest.ini_options]
+addopts = "-sv"
