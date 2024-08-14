@@ -8,7 +8,7 @@ all = { chain = ["fmt", "lint", "check", "test"] }
 [project]
 name = "una"
 dynamic = ["version"]
-description = "Python monorepo tooling"
+description = "Python monorepo tooling."
 authors = [
     { name = "Chris Arderne", email = "chris@rdrn.me" }
 ]
