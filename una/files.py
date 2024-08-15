@@ -26,7 +26,7 @@ def is_int_dep_dir(p: Path) -> bool:
 
 
 def get_libs_dirs(root: Path, top_dir: str, ns: str) -> list[Path]:
-    style = config.get_style()
+    style = config.get_style(root)
     sub = "" if style == Style.packages else ns
     lib_dir = root / top_dir / sub
     if not lib_dir.exists():
@@ -109,7 +109,7 @@ def create_project(path: Path, name: str) -> None:
 def create_package(path: Path, name: str, kind: Literal["app", "lib"]) -> None:
     conf = config.load_conf(path)
     python_version = conf.project.requires_python
-    ns = conf.project.name
+    ns = config.get_ns(path)
 
     top_dir = defaults.apps_dir if kind == "app" else defaults.libs_dir
     app_dir = create_dir(path, f"{top_dir}/{name}")
@@ -130,9 +130,7 @@ def create_package(path: Path, name: str, kind: Literal["app", "lib"]) -> None:
 
 
 def create_module(path: Path, name: str, kind: Literal["app", "lib"]) -> None:
-    conf = config.load_conf(path)
-    ns = conf.project.name
-
+    ns = config.get_ns(path)
     top_dir = defaults.apps_dir if kind == "app" else defaults.libs_dir
     code_dir = create_dir(path, f"{top_dir}/{ns}/{name}")
     create_file(code_dir, "__init__.py")
@@ -151,7 +149,8 @@ def create_app_or_lib(path: Path, name: str, kind: DepKind, style: Style) -> Non
 
 
 def get_project_roots(root: Path) -> list[Path]:
-    style = config.get_style()
+    ws_root = config.get_workspace_root()
+    style = config.get_style(ws_root)
     prefix = "projects" if style == Style.modules else "apps"
     return sorted(root.glob(f"{prefix}/*/"))
 

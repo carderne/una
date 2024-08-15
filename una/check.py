@@ -8,7 +8,7 @@ from una.types import CheckReport, ExtDeps, Imports, Options, OrgImports, Proj, 
 
 
 def check_int_ext_deps(root: Path, ns: str, project: Proj, options: Options) -> bool:
-    name = project.name
+    name = config.sanitise_name(project.name)
     int_dep_imports, ext_dep_imports = collect_all_imports(root, ns, project)
     collected_libs = collect_known_aliases(project, options)
     details = create_report(
@@ -151,7 +151,8 @@ def create_report(
     lib_pkgs = {c for c in project.int_deps.libs}
     int_dep_diff = imports_diff(int_dep_imports, app_pkgs, lib_pkgs)
 
-    style = config.get_style()
+    root = config.get_workspace_root()
+    style = config.get_style(root)
     include_libs = style == Style.modules
     ext_dep_diff = external_deps.calculate_diff(ext_dep_imports, third_party_libs, include_libs)
 

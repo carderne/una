@@ -80,7 +80,8 @@ def generate_updated_project(conf: Conf, packages: list[Include]) -> str | None:
 
 
 def to_packages(ns: str, diff: Diff) -> list[Include]:
-    style = config.get_style()
+    root = config.get_workspace_root()
+    style = config.get_style(root)
     apps_path = "../../apps"
     libs_path = "../../libs"
     a = [to_package(ns, b, apps_path, style) for b in diff.apps]

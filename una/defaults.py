@@ -26,6 +26,7 @@ description = ""
 authors = []
 dependencies = []
 requires-python = "{python_version}"
+dynamic = ["una"]  # needed for hatch-una metadata hook to work
 
 [build-system]
 requires = ["hatchling", "hatch-una"]

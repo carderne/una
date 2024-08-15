@@ -16,7 +16,7 @@ def calc_diff(tag_name: str | None, only_int_deps: bool):
         print("No tags found in repository.")
         return
 
-    ns = config.get_ns()
+    ns = config.get_ns(root)
     files = get_files(tag)
     apps_paths = get_changed_apps(root, files, ns)
     libs_paths = get_changed_libs(root, files, ns)

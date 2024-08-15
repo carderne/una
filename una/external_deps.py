@@ -26,7 +26,7 @@ def external_deps_from_all(
 
 
 def missing_libs(project: Proj, imports: dict[str, OrgImports], options: Options) -> bool:
-    name = project.name
+    name = config.sanitise_name(project.name)
     deps = project.ext_deps
     int_dep_imports = imports[name]
     libs = distributions.known_aliases_and_sub_dependencies(deps, options.alias)
@@ -59,7 +59,8 @@ def extract_ext_dep_imports(all_imports: Imports, top_ns: str) -> Imports:
 
 
 def _get_third_party_imports(root: Path, paths: set[Path]) -> Imports:
-    top_ns = config.get_ns()
+    root = config.get_workspace_root()
+    top_ns = config.get_ns(root)
     all_imports = parse.fetch_all_imports(paths)
     return extract_ext_dep_imports(all_imports, top_ns)
 
@@ -121,7 +122,8 @@ def print_missing_installed_libs(
     third_party_libs: set[str],
     project_name: str,
 ) -> bool:
-    style = config.get_style()
+    root = config.get_workspace_root()
+    style = config.get_style(root)
     include_libs = style == Style.modules
     diff = calculate_diff(int_dep_imports, third_party_libs, include_libs)
     if not diff:

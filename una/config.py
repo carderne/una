@@ -53,13 +53,15 @@ def get_project_dependencies(data: Conf) -> ExtDeps:
     return ExtDeps(items=items, source=defaults.pyproj)
 
 
-def get_ns() -> str:
-    path = get_workspace_root()
-    return load_conf(path).project.name
+def sanitise_name(name: str) -> str:
+    return name.replace("-", "_")
 
 
-def get_style() -> Style:
-    path = get_workspace_root()
+def get_ns(path: Path) -> str:
+    return sanitise_name(load_conf(path).project.name)
+
+
+def get_style(path: Path) -> Style:
     return load_conf(path).tool.una.style
 
 

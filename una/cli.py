@@ -44,7 +44,7 @@ def info_command(
 ):
     """Info about the Una workspace."""
     root = config.get_workspace_root()
-    ns = config.get_ns()
+    ns = config.get_ns(root)
     options = Options(alias=str.split(alias, ",") if alias else [])
 
     internal_deps.int_deps_from_projects(root, ns)
@@ -79,7 +79,7 @@ def sync_command(
 ):
     """Update pyproject.toml with missing int_deps."""
     root = config.get_workspace_root()
-    ns = config.get_ns()
+    ns = config.get_ns(root)
     projects = internal_deps.get_projects_data(root, ns)
     options = Options(
         quiet=quiet,
@@ -104,7 +104,7 @@ def lib_command(
 ):
     """Creates an Una lib."""
     root = config.get_workspace_root()
-    style = config.get_style()
+    style = config.get_style(root)
     files.create_app_or_lib(root, name, "lib", style)
     console = Console(theme=defaults.una_theme)
     console.print("Success!")
@@ -117,7 +117,7 @@ def app_command(
 ):
     """Creates an Una app."""
     root = config.get_workspace_root()
-    style = config.get_style()
+    style = config.get_style(root)
     files.create_app_or_lib(root, name, "app", style)
     console = Console(theme=defaults.una_theme)
     console.print("Success!")
@@ -130,7 +130,8 @@ def workspace_command(
 ):
     """Creates an Una workspace in the current directory."""
     path = Path.cwd()
-    ns = config.get_ns()
+    root = config.get_workspace_root()
+    ns = config.get_ns(root)
     files.create_workspace(path, ns, style)
     console = Console(theme=defaults.una_theme)
     console.print("Success!")

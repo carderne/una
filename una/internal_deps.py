@@ -119,7 +119,8 @@ def get_project_int_deps(
 
 def get_int_deps_in_projects(root: Path, libs_paths: list[str], apps_paths: list[str], namespace: str) -> list[Proj]:
     packages = files.get_projects(root)
-    style = config.get_style()
+    ws_root = config.get_workspace_root()
+    style = config.get_style(ws_root)
     add_self = style == Style.packages
     res = [
         Proj(
