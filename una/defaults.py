@@ -32,6 +32,9 @@ dynamic = ["una"]  # needed for hatch-una metadata hook to work
 requires = ["hatchling", "hatch-una"]
 build-backend = "hatchling.build"
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.rye]
 managed = true
 dev-dependencies = []

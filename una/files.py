@@ -118,7 +118,7 @@ def create_package(path: Path, name: str, kind: Literal["app", "lib"]) -> None:
 
     create_file(code_dir, "__init__.py")
     create_file(code_dir, "py.typed")
-    test_path = test_dir / "test_import.py"
+    test_path = test_dir / f"test_{name}_import.py"
     with test_path.open("w", encoding="utf-8") as f:
         content = defaults.test_template.format(ns=ns, name=name)
         f.write(content)
