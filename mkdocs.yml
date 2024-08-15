@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+
+site_name: una
+site_url: https://una.rdrn.me/
+site_description: Monorepo tooling for Python and Rye
+site_author: Chris Arderne
+repo_name: carderne/una
+repo_url: https://github.com/carderne/una
+edit_uri: blob/main/docs
+copyright: 'Copyright &copy; Chris Arderne 2024'
+
+theme:
+  name: material
+  features:
+    - content.action.edit
+    - content.code.copy
+    - navigation.expand
+    - navigation.footer
+    - navigation.instant
+    - navigation.sections
+
+nav:
+  - Home:
+    - About: index.md
+    - Quickstart: quickstart.md
+  - Walkthrough:
+    - Install: install.md
+    - Usage: usage.md
+    - Build: build.md
+  - Styles:
+    - Packages: style-packages.md
+    - Modules: style-modules.md
+  - Integration:
+    - Type-checking: type-checking.md
+  - Community:
+    - Contributing: contributing.md

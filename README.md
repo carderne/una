@@ -105,7 +105,8 @@ rye run una --help
 ╰─────────────────────────────────────────────────────────────────────────╯
 ```
 
-## Pyright
+## Type-checking, testing, editors
+### Pyright
 With the `packages` style (the default), you'll need do Pyright type-checking on a per-package basis.
 
 That is, you should add something like the config below to each `apps/*/pyproject.toml` and `libs/*/pyproject.toml`.
@@ -120,7 +121,8 @@ pythonVersion = "3.11"
 strict = ["**/*.py"]
 ```
 
-## Style: Packages
+## Styles
+### Style: Packages
 In this setup, we use Rye's built-in workspace support. The structure will look something like this:
 ```bash
 .
@@ -190,7 +192,7 @@ COPY dist dist
 RUN pip install dist/*.whl
 ```
 
-## Style: Modules
+### Style: Modules
 This approach is inspired by [Polylith](https://davidvujic.github.io/python-polylith-docs/).
 You don't use a Rye workspace (and indeed this approach will work with just Hatch), and there's only a single `pyproject.toml`.
 

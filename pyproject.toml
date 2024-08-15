@@ -47,6 +47,7 @@ managed = true
 dev-dependencies = [
     "pytest~=8.3.1",
     "basedpyright~=1.15.2",
+    "mkdocs-material~=9.5.31",
 ]
 
 [tool.rye.workspace]
