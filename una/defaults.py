@@ -21,6 +21,8 @@ proj_dir = "projects"
 example_app = "printer"
 example_lib = "greeter"
 
+example_import = "cowsay-python==1.0.2"
+
 packages_pyproj = """\
 [project]
 name = "{name}"
@@ -48,6 +50,39 @@ dev-dependencies = []
 [tool.una.libs]
 """
 
+projects_pyproj = """\
+[project]
+name = "{name}"
+version = "0.1.0"
+description = ""
+authors = []
+dependencies = [{dependencies}]
+requires-python = "{python_version}"
+
+[build-system]
+requires = ["hatchling", "hatch-una"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build]
+packages = ["{ns}"]
+
+[tool.hatch.build.hooks.una-build]
+
+[tool.una.libs]
+"""
+
+example_packages_style_app_deps = """\
+"../../libs/{lib_name}/{ns}/{lib_name}" = "{ns}/{lib_name}"
+"""
+
+example_modules_style_project_deps = """\
+"../../apps/{ns}/{app_name}" = "{ns}/{app_name}"
+"../../libs/{ns}/{lib_name}" = "{ns}/{lib_name}"
+"""
+
 app_template = """\
 import {ns}.{lib_name} as {lib_name}
 
@@ -56,10 +91,9 @@ def run() -> None:
     print({lib_name}.greet())
 """
 
-lib_dependencies = "cowsay==6.1"
-
 lib_template = """\
 import cowsay
+
 
 def greet() -> str:
     return cowsay.say("Hello from una!")

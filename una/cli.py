@@ -130,6 +130,24 @@ def app_command(
     console.print(f"Created app {name}")
 
 
+@create.command("project")
+def project_command(
+    name: Annotated[str, Argument(help="Name of the projectlib.")],
+    from_app: Annotated[str, Argument(help="Name of the app the project will use.")],
+):
+    """Creates an Una project."""
+    root = config.get_workspace_root()
+    style = config.get_style(root)
+    console = Console(theme=defaults.una_theme)
+    if style == Style.packages:
+        console.print("You can't create projects in a Packages style workspace")
+        exit(1)
+
+    files.create_project(root, name, "", from_app)
+    console.print("Success!")
+    console.print(f"Created project {name}")
+
+
 @create.command("workspace")
 def workspace_command(
     style: Annotated[Style, Option(help="Workspace style")] = "packages",  # type:ignore[reportArgumentType]

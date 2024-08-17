@@ -10,13 +10,18 @@ But I find the [Polylith](https://polylith.gitbook.io/polylith) architecture to 
 It just tries to make a simple monorepo build just about possible.
 
 una allows two directory structures or styles:
-- `packages`: this is the lightest-touch approach, that is just some extra build help on top of a Rye workspace.
+- `packages`: this is the default style, that is just some extra build help on top of a Rye workspace.
 - `modules`: a more novel approach with just a single pyproject.toml, arguably better DevX and doesn't require a Rye workspace.
 
 Within this context, we use the following words frequently:
 - `lib`: a module or package that will be imported but not run.
 - `app`: a module or package that will be run but never imported.
 - `project`: a package with no code but only dependencies (only used in the `modules` style)
+
+## Examples
+You can see examples for each of the two styles here:
+- [carderne/una-example-packages](https://github.com/carderne/una-example-packages)
+- [carderne/una-example-modules](https://github.com/carderne/una-example-modules)
 
 ## Quickstart
 This will give you a quick view of how this all works.
