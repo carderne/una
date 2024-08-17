@@ -31,6 +31,6 @@ nav:
     - Packages: style-packages.md
     - Modules: style-modules.md
   - Integration:
-    - Type-checking: type-checking.md
+    - Types and tests: types-tests.md
   - Community:
     - Contributing: contributing.md

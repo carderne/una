@@ -3,14 +3,13 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, TypeAlias, TypeVar
 
 import tomlkit
 from dataclasses_json import dataclass_json
 
 Json: TypeAlias = dict[str, "Json"] | list["Json"] | str | int | float | bool | None
 Imports: TypeAlias = dict[str, set[str]]
-DepKind: TypeAlias = Literal["app", "lib"]
 
 
 @dataclass

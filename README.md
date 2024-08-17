@@ -23,43 +23,53 @@ This will give you a quick view of how this all works.
 A `packages` style will be used by default, as it is probably more familiar to most.
 
 ```bash
-rye init my_example
-cd my_example
+rye init unarepo   # choose another name if you prefer
+cd unarepo
 rye add --dev una
+```
 
-# this will create a bunch of folders and files, have a look at them!
+Then setup the una workspace. This will generate a structure and an example lib and app.
+```
 rye run una create workspace
+rye sync
+```
 
-# why not have a look
+Have a look at what's been generated:
+```
 tree
 ```
 
-The let's create some internal and external dependencies:
-```bash
-# add an external library to example_lib
-cd libs/example_lib
-rye add urllib3
-cd ../..
+Have a look at the generated `__init__.py` files in the `apps/printer` and `libs/greeter` packages.
+An external dependency ([cowsay-python](https://pypi.org/project/cowsay-python/)) has also been added to the latter's `pyproject.toml`.
 
-# and then depend on example_lib from example_app
-echo "import my_example.example_lib" > apps/example_app/my_example/example_app/foo.py
+The magic of `una` then comes in to resolve the graph of direct and transitive dependencies, which looks like this:
+```elm
+printer --> greeter --> cowsay-python
 ```
 
-But then how do we ensure that builds of example_app will include all of the required code and dependencies?
+You can do this by running the following:
 ```bash
 # this checks all imports and ensures they are added to
 # [tool.una.libs] in the appropriate pyproject.toml
 rye run una sync
-
-# have a look at what happened
-tail apps/example_app/pyproject.toml
 ```
+
+Have a look at what happened:
+```bash
+tail apps/printer/pyproject.toml
+```
+
+It added `greeter` as an internal dependency to `printer`.
+It didn't add `cowsay-python`, as external dependencies are only resolved at build-time (keep reading).
 
 Now you can build your app:
 ```bash
-rye build --package example_app
+rye build --package printer
+# this will inject the cowsay-python externel dependency
+```
 
-# and see the result
+And see the result:
+```bash
 ls dist/
 ```
 
@@ -69,6 +79,12 @@ What about stick it in a Dockerfile, have you ever seen such a simple one?
 FROM python
 COPY dist dist
 RUN pip install dist/*.whl
+```
+
+And run it:
+```bash
+docker build --tag unarepo-printer .
+docker run --rm -it unarepo-printer python -c 'from unarepo.printer import run; run()'
 ```
 
 ## Installation
@@ -105,145 +121,14 @@ rye run una --help
 ╰─────────────────────────────────────────────────────────────────────────╯
 ```
 
-## Type-checking, testing, editors
-### Pyright
-With the `packages` style (the default), you'll need to configure pyright for each package.
+## Documentation
 
-That is, you should add something like the config below to each `apps/*/pyproject.toml` and `libs/*/pyproject.toml`.
+Read more at [the official documentation](https://una.rdrn.me/).
 
-```toml
-[tool.pyright]
-venvPath = "../.."
-venv = ".venv"
-pythonVersion = "3.11"
-strict = ["**/*.py"]
-```
+It covers additional things like:
+- [type-checking](https://una.rdrn.me/types-tests/), testing, editor integration
+- more detail on the [packages](https://una.rdrn.me/style-packages/) vs [modules](https://una.rdrn.me/style-modules/) styles
+- and more!
 
-Once that is added, you can run `rye run pyright` in the root and it should work correctly.
-
-With the `modules` style this is not necessary, and you can just have one root Pyright (and Pytest!).
-
-### Pytest
-You can just configure pytest as follows in the root pyproject.toml:
-```toml
-[tool.pytest.ini_options]
-pythonpath = [
-  "apps/*",
-  "libs/*"
-]
-testpaths = [
-  "apps/*",
-  "libs/*",
-]
-addopts = ""
-```
-
-## Styles
-### Style: Packages
-In this setup, we use Rye's built-in workspace support. The structure will look something like this:
-```bash
-.
-├── pyproject.toml
-├── requirements.lock
-├── apps
-│   └── server
-│       ├── pyproject.toml
-│       ├── your_ns
-│       │   └── server
-│       │       ├── __init__.py
-│       └── tests
-│           └── test_server.py
-└── libs
-    └── mylib
-        ├── pyproject.toml
-        ├── your_ns
-        │   └── mylib
-        │       ├── __init__.py
-        │       └── py.typed
-        └── tests
-            └── test_mylib.py
-```
-
-This means:
-1. Each `app` or `lib` (collectively, internal dependencies) is it's own Python package with a `pyproject.toml`.
-2. You must specify the workspace members in `tool.rye.workspace.members`.
-3. Type-checking and testing should be done on a per-package level.
-That is, you should run `pyright` and `pytest` from `apps/server` or `libs/mylib`, _not_ from the root.
-
-In the example above, the only build artifact will be for `apps/server`. At build-time, una will do the following:
-1. Read the list of internal dependencies (more on this shortly) and inject them into the build.
-2. Read all externel requirements of those dependencies, and add them to the dependency table.
-
-You can then use the `una` CLI tool to ensure that all internal dependencies are kept in sync. What are the key steps?
-1. Use a Rye workspace:
-```toml
-# /pyproject.toml
-[tool.rye]
-managed = true
-virtual = true
-
-[tool.rye.workspace]
-members = ["apps/*", "libs/*"]
-```
-
-2. Create your apps and your libs as you would, ensuring that app code is never imported.
-Ensure that you choose a good namespace and always use it in your package structures (check `your_ns` in the example structure above.)
-3. Add external dependencies to your libs and apps as normal.
-Then, to add an internal dependency to an app, we do the following in its pyproject.toml:
-```toml
-# /apps/server/pyproject.toml
-[build-system]
-requires = ["hatchling", "hatch-una"]
-build-backend = "hatchling.build"
-
-[tool.hatch.build.hooks.una-build]
-[tool.hatch.build.hooks.una-meta]
-[tool.una.libs]
-"../../libs/mylib/example/mylib" = "example/mylib"
-```
-4. Then you can run `rye build --wheel` from that package directory and una will inject everything that is needed.
-Once you have your built `.whl` file, all you need in your Dockerfile is:
-```Dockerfile
-FROM python
-COPY dist dist
-RUN pip install dist/*.whl
-```
-
-### Style: Modules
-This approach is inspired by [Polylith](https://davidvujic.github.io/python-polylith-docs/).
-You don't use a Rye workspace (and indeed this approach will work with just Hatch), and there's only a single `pyproject.toml`.
-
-The structure looks like this:
-```bash
-.
-├── pyproject.toml
-├── requirements.lock
-├── apps
-│   └── your_ns
-│       └── server
-│           ├── __init__.py
-│           └── test_server.py
-├── libs
-│   └── your_ns
-│       └── mylib
-│           ├── __init__.py
-│           ├── core.py
-│           └── test_core.py
-└── projects
-    └── server
-        └── pyproject.toml
-```
-
-The key differences are as follows:
-1. `apps/` and `libs/` contain only pure Python code, structured into modules under a common namespace.
-2. Tests are colocated with Python code (this will be familiar to those coming from Go or Rust).
-3. Because `apps/` is just pure Python code, we need somewhere else to convert this into deployable artifacts (Docker images and the like).
-So we add `projects/` directory. This contains no code, just a pyproject.toml and whatever else is needed to deploy the built project.
-The pyproject will specify which internal dependencies are used in the project: exactly one app, and zero or more libs.
-4. It must also specify all external dependencies that are used, including the transitive dependencies of internal libs that it uses.
-But the una CLI will help with this!
-
-And there's one more benefit:
-5. You can run pyright and pytest from the root directory!
-This gives you a true monorepo benefit of having a single static analysis of the entire codebase.
-But don't worry, una will help you to only test the bits that are needed.
+## License
+una is distributed under the terms of the MIT license.

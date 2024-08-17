@@ -105,7 +105,10 @@ def lib_command(
     """Creates an Una lib."""
     root = config.get_workspace_root()
     style = config.get_style(root)
-    files.create_app_or_lib(root, name, "lib", style)
+    if style == Style.packages:
+        files.create_package(root, defaults.example_lib, defaults.libs_dir, "", "")
+    else:
+        files.create_module(root, defaults.example_lib, defaults.libs_dir, "")
     console = Console(theme=defaults.una_theme)
     console.print("Success!")
     console.print(f"Created lib {name}")
@@ -118,7 +121,10 @@ def app_command(
     """Creates an Una app."""
     root = config.get_workspace_root()
     style = config.get_style(root)
-    files.create_app_or_lib(root, name, "app", style)
+    if style == Style.packages:
+        files.create_package(root, defaults.example_app, defaults.apps_dir, "", "")
+    else:
+        files.create_module(root, defaults.example_app, defaults.apps_dir, "")
     console = Console(theme=defaults.una_theme)
     console.print("Success!")
     console.print(f"Created app {name}")

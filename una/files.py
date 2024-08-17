@@ -1,15 +1,18 @@
 from pathlib import Path
-from typing import Literal
 
 import tomlkit
 
 from una import config, defaults
-from una.types import ConfWrapper, DepKind, Include, Proj, Style
+from una.types import ConfWrapper, Include, Proj, Style
 
 
-def create_file(path: Path, name: str) -> Path:
+def create_file(path: Path, name: str, content: str | None = None) -> Path:
     fullpath = path / name
-    fullpath.touch()
+    if content:
+        with fullpath.open("w", encoding="utf-8") as f:
+            f.write(content)
+    else:
+        fullpath.touch()
     return fullpath
 
 
@@ -83,11 +86,19 @@ def update_workspace_config(path: Path, ns: str, style: Style) -> None:
 def create_workspace(path: Path, ns: str, style: Style) -> None:
     update_workspace_config(path, ns, style)
 
-    if style == Style.modules:
-        create_project(path, "example_project")
+    app_content = defaults.app_template.format(ns=ns, lib_name=defaults.example_lib)
+    lib_content = defaults.lib_template
+    dependencies = '"cowsay-python==1.0.1"'
 
-    create_app_or_lib(path, "example_app", "app", style)
-    create_app_or_lib(path, "example_lib", "lib", style)
+    if style == Style.modules:
+        create_project(path, "example_project", dependencies)
+
+    if style == Style.packages:
+        create_package(path, defaults.example_app, defaults.apps_dir, app_content, "")
+        create_package(path, defaults.example_lib, defaults.libs_dir, lib_content, dependencies)
+    else:
+        create_module(path, defaults.example_app, defaults.apps_dir, app_content)
+        create_module(path, defaults.example_lib, defaults.libs_dir, app_content)
 
 
 def parse_package_paths(packages: list[Include]) -> list[Path]:
@@ -95,57 +106,43 @@ def parse_package_paths(packages: list[Include]) -> list[Path]:
     return [Path(p.src) for p in sorted_packages]
 
 
-def create_project(path: Path, name: str) -> None:
+def create_project(path: Path, name: str, dependencies: str) -> None:
     conf = config.load_conf(path)
     python_version = conf.project.requires_python
 
     proj_dir = create_dir(path, f"projects/{name}")
-    pyproject_path = proj_dir / defaults.pyproj
-    newconf_text = defaults.packages_pyproj.format(name=name, python_version=python_version)
-    with pyproject_path.open("w", encoding="utf-8") as f:
-        f.write(newconf_text)
+    create_file(
+        proj_dir,
+        defaults.pyproj,
+        defaults.packages_pyproj.format(name=name, python_version=python_version, dependencies=""),
+    )
 
 
-def create_package(path: Path, name: str, kind: Literal["app", "lib"]) -> None:
+def create_package(path: Path, name: str, top_dir: str, content: str, dependencies: str) -> None:
     conf = config.load_conf(path)
     python_version = conf.project.requires_python
     ns = config.get_ns(path)
 
-    top_dir = defaults.apps_dir if kind == "app" else defaults.libs_dir
     app_dir = create_dir(path, f"{top_dir}/{name}")
     code_dir = create_dir(path, f"{top_dir}/{name}/{ns}/{name}")
     test_dir = create_dir(path, f"{top_dir}/{name}/tests")
 
-    create_file(code_dir, "__init__.py")
+    create_file(code_dir, "__init__.py", content)
     create_file(code_dir, "py.typed")
-    test_path = test_dir / f"test_{name}_import.py"
-    with test_path.open("w", encoding="utf-8") as f:
-        content = defaults.test_template.format(ns=ns, name=name)
-        f.write(content)
-
-    pyproject_path = app_dir / defaults.pyproj
-    newconf_text = defaults.packages_pyproj.format(name=name, python_version=python_version)
-    with pyproject_path.open("w", encoding="utf-8") as f:
-        f.write(newconf_text)
+    create_file(test_dir, f"test_{name}_import.py", content=defaults.test_template.format(ns=ns, name=name))
+    create_file(
+        app_dir,
+        defaults.pyproj,
+        content=defaults.packages_pyproj.format(name=name, python_version=python_version, dependencies=dependencies),
+    )
 
 
-def create_module(path: Path, name: str, kind: Literal["app", "lib"]) -> None:
+def create_module(path: Path, name: str, top_dir: str, content: str) -> None:
     ns = config.get_ns(path)
-    top_dir = defaults.apps_dir if kind == "app" else defaults.libs_dir
     code_dir = create_dir(path, f"{top_dir}/{ns}/{name}")
-    create_file(code_dir, "__init__.py")
 
-    test_path = code_dir / f"test_{name}.py"
-    with test_path.open("w", encoding="utf-8") as f:
-        content = defaults.test_template.format(ns=ns, name=name)
-        f.write(content)
-
-
-def create_app_or_lib(path: Path, name: str, kind: DepKind, style: Style) -> None:
-    if style == Style.packages:
-        create_package(path, name, kind)
-    else:
-        create_module(path, name, kind)
+    create_file(code_dir, "__init__.py", content)
+    create_file(code_dir, f"test_{name}.py", defaults.test_template.format(ns=ns, name=name))
 
 
 def get_project_roots(root: Path) -> list[Path]:

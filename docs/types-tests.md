@@ -1,4 +1,4 @@
-# Type-checking, testing, editors
+# Types and tests
 ## Pyright
 With the `packages` style (the default), you'll need to configure pyright for each package.
 

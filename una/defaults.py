@@ -18,13 +18,16 @@ libs_dir = "libs"
 apps_dir = "apps"
 proj_dir = "projects"
 
-packages_pyproj = """
+example_app = "printer"
+example_lib = "greeter"
+
+packages_pyproj = """\
 [project]
 name = "{name}"
 version = "0.1.0"
 description = ""
 authors = []
-dependencies = []
+dependencies = [{dependencies}]
 requires-python = "{python_version}"
 dynamic = ["una"]  # needed for hatch-una metadata hook to work
 
@@ -45,8 +48,27 @@ dev-dependencies = []
 [tool.una.libs]
 """
 
+app_template = """\
+import {ns}.{lib_name} as {lib_name}
+
+
+def run() -> None:
+    print({lib_name}.greet())
+"""
+
+lib_dependencies = "cowsay==6.1"
+
+lib_template = """\
+import cowsay
+
+def greet() -> str:
+    return cowsay.say("Hello from una!")
+"""
+
 test_template = """\
 from {ns} import {name}
+
+
 def test_import():
     assert {name}
 """
