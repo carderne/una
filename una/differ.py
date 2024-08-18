@@ -39,14 +39,18 @@ def parse_folder_parts(pattern: str, changed_file: Path) -> str:
 
 
 def get_changed(pattern: str, changed_files: list[Path]) -> set[str]:
-    return {parse_folder_parts(pattern, f) for f in changed_files if re.match(pattern, f.as_posix())}
+    return {
+        parse_folder_parts(pattern, f) for f in changed_files if re.match(pattern, f.as_posix())
+    }
 
 
 def parse_path_pattern(_: Path, top_dir: str, namespace: str) -> str:
     return f"{top_dir}/{namespace}/"
 
 
-def get_changed_int_deps(root: Path, top_dir: str, changed_files: list[Path], namespace: str) -> list[str]:
+def get_changed_int_deps(
+    root: Path, top_dir: str, changed_files: list[Path], namespace: str
+) -> list[str]:
     pattern = parse_path_pattern(root, top_dir, namespace)
     return sorted(get_changed(pattern, changed_files))
 
@@ -87,7 +91,9 @@ def print_diff_details(projects_data: list[Proj], apps: list[str], libs: list[st
     if not apps and not libs:
         return
     console = Console(theme=defaults.una_theme)
-    table = internal_deps.build_int_deps_in_projects_table(projects_data, apps, libs, for_info=False)
+    table = internal_deps.build_int_deps_in_projects_table(
+        projects_data, apps, libs, for_info=False
+    )
     console.print(table, overflow="ellipsis")
 
 

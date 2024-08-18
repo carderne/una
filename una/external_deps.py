@@ -131,7 +131,8 @@ def print_missing_installed_libs(
     console = Console(theme=defaults.una_theme)
     missing = ", ".join(sorted(diff))
     console.print(
-        f"[data]Could not locate all libraries in [/][proj]{project_name}[/]. [data]Caused by missing dependencies?[/]"
+        f"[data]Could not locate all libraries in [/][proj]{project_name}[/].",
+        "[data]Caused by missing dependencies?[/]",
     )
     console.print(f":thinking_face: {missing}")
     return False

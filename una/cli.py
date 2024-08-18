@@ -15,7 +15,7 @@ app.add_typer(
     help="Commands for creating a workspace, apps, libs and projects.",
 )
 
-option_alias = Option(help="alias for third-party libraries, useful when an import differ from the library name")  # type: ignore[reportAny]
+option_alias = Option(help="alias for third-party libraries, map install to import name")  # type: ignore[reportAny]
 option_verbose = Option(help="More verbose output.")  # type: ignore[reportAny]
 option_quiet = Option(help="Do not output any messages.")  # type: ignore[reportAny]
 

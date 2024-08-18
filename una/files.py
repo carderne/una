@@ -120,7 +120,9 @@ def create_project(path: Path, name: str, dependencies: str, from_app: str) -> N
         proj_dir,
         defaults.pyproj,
         content
-        + defaults.example_modules_style_project_deps.format(ns=ns, app_name=from_app, lib_name=defaults.example_lib),
+        + defaults.example_modules_style_project_deps.format(
+            ns=ns, app_name=from_app, lib_name=defaults.example_lib
+        ),
     )
 
 
@@ -137,14 +139,18 @@ def create_package(path: Path, name: str, top_dir: str, content: str, dependenci
     create_file(code_dir, "__init__.py", content)
     create_file(code_dir, "py.typed")
     is_app = top_dir == defaults.apps_dir  # TODO fix this hack
-    create_file(test_dir, f"test_{name}_import.py", content=defaults.test_template.format(ns=ns, name=name))
+    create_file(
+        test_dir, f"test_{name}_import.py", content=defaults.test_template.format(ns=ns, name=name)
+    )
     pyproj_content = defaults.packages_pyproj.format(
         name=name, python_version=python_version, dependencies=dependencies
     )
     if is_app:
         create_file(ns_dir, "py.typed")  # is this necessary? basedpyright thinks so...
         if content:
-            pyproj_content += defaults.example_packages_style_app_deps.format(ns=ns, lib_name=defaults.example_lib)
+            pyproj_content += defaults.example_packages_style_app_deps.format(
+                ns=ns, lib_name=defaults.example_lib
+            )
     create_file(
         app_dir,
         defaults.pyproj,

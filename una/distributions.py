@@ -25,9 +25,12 @@ def extract_library_names(deps: ExtDeps) -> set[str]:
 
 
 def known_aliases_and_sub_dependencies(deps: ExtDeps, library_alias: list[str]) -> set[str]:
-    """Collect known aliases (packages) for third-party libraries.
+    """
+    Collect known aliases (packages) for third-party libraries.
+
     When the library origin is not from a lock-file:
-    collect sub-dependencies and distribution top-namespace for each library, and append to the result.
+    collect sub-dependencies and distribution top-namespace for each library,
+    and append to the result.
     """
     lock_file = any(str.endswith(deps.source, s) for s in {".lock", ".txt"})
     third_party_libs = extract_library_names(deps)

@@ -67,7 +67,11 @@ def flatten_import(acc: set[str], kv: tuple[str, set[str]]) -> set[str]:
 
 
 def flatten_imports(int_dep_imports: Imports) -> set[str]:
-    """Flatten the dict into a set of imports, with the actual int_dep filtered away when existing as an import"""
+    """
+    Flatten the dict into a set of imports.
+
+    The actual int_dep filtered away when existing as an import.
+    """
     return reduce(flatten_import, int_dep_imports.items(), set())
 
 
@@ -77,7 +81,9 @@ def create_columns(imported_apps: list[str], imported_libs: list[str]) -> list[s
     return lib_cols + app_cols
 
 
-def create_rows(apps: set[str], libs: set[str], import_data: Imports, imported: list[str]) -> list[list[str]]:
+def create_rows(
+    apps: set[str], libs: set[str], import_data: Imports, imported: list[str]
+) -> list[list[str]]:
     app_rows = [to_row(b, "app", import_data, imported) for b in sorted(apps)]
     lib_rows = [to_row(c, "lib", import_data, imported) for c in sorted(libs)]
     return lib_rows + app_rows
@@ -117,7 +123,9 @@ def get_project_int_deps(
     return IntDeps(libs=libs_in_project, apps=apps_in_project)
 
 
-def get_int_deps_in_projects(root: Path, libs_paths: list[str], apps_paths: list[str], namespace: str) -> list[Proj]:
+def get_int_deps_in_projects(
+    root: Path, libs_paths: list[str], apps_paths: list[str], namespace: str
+) -> list[Proj]:
     packages = files.get_projects(root)
     ws_root = config.get_workspace_root()
     style = config.get_style(ws_root)
@@ -170,11 +178,15 @@ def build_int_deps_in_projects_table(
     for col in proj_cols:
         table.add_column(col, justify="center")
     for int_dep in sorted(libs):
-        statuses = [int_dep_status_projects(int_dep, p.int_deps.libs, for_info) for p in projects_data]
+        statuses = [
+            int_dep_status_projects(int_dep, p.int_deps.libs, for_info) for p in projects_data
+        ]
         cols = [f"[lib]{int_dep}[/]"] + statuses
         table.add_row(*cols)
     for int_dep in sorted(apps):
-        statuses = [int_dep_status_projects(int_dep, p.int_deps.apps, for_info) for p in projects_data]
+        statuses = [
+            int_dep_status_projects(int_dep, p.int_deps.apps, for_info) for p in projects_data
+        ]
         cols = [f"[app]{int_dep}[/]"] + statuses
         table.add_row(*cols)
     return table

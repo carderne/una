@@ -9,34 +9,57 @@ from hatch_una import util
 
 
 class UnaBuildHook(BuildHookInterface[BuilderConfig]):
+    """
+    Force-include all needed internal monorepo dependencies.
+    """
+
     PLUGIN_NAME = "una-build"
 
     def initialize(self, version: str, build_data: dict[str, Any]) -> None:
         print("una: Injecting internal dependencies")
+
+        # load the config for this app/project
         path = Path(self.root)
         conf = util.load_conf(path)
+        name: str = conf["project"]["name"]
 
+        try:
+            int_deps: dict[str, str] = conf["tool"]["una"]["libs"]
+        except KeyError as e:
+            raise KeyError(
+                f"App/project '{name}' is missing '[tool.una.libs]' in pyproject.toml"
+            ) from e
+
+        # need to determine workspace style (packages or modules)
+        # as packages style needs dependencies' pyproject.tomls to be included
+        # so that they're available in src -> sdist -> wheel builds
         root_path = path.parents[1]
-        extra_root_path = util.EXTRA_PYPROJ / "root"
-        if (root_path / util.PYPROJ).exists():
-            use_root_path = root_path
-        elif (extra_root_path / util.PYPROJ).exists():
-            use_root_path = extra_root_path
-        else:
-            raise ValueError("No root pyproject to determine workspace style")
-        root_conf = util.load_conf(use_root_path)
-        style: str = root_conf["tool"]["una"]["style"]
+        style = util.get_workspace_style(root_path)
 
-        int_deps: dict[str, str] = conf["tool"]["una"]["libs"]
+        if not int_deps:
+            if style == "packages":
+                # this is fine, the app doesn't import anything internally
+                return
+            else:
+                # this is an empty project, useless and accidental
+                raise ValueError(f"Project '{name}' has no dependencies")
+
+        # make sure all int_deps exist
         found = [Path(k) for k in int_deps if (path / k).exists()]
-        if not int_deps or not found:
-            # should I raise here?
-            return
+        missing = set(int_deps) - set(str(p) for p in found)
+        if len(missing) > 0:
+            missing_str = ", ".join(missing)
+            raise ValueError(f"Could not find these paths: {missing_str}")
 
-        add_root_pyproj = {str(root_path / util.PYPROJ): str(util.EXTRA_PYPROJ / "root" / util.PYPROJ)}
+        # need to add the root workspace pyproject.toml so that in src -> sdist -> wheel builds,
+        # we can still determine the style (for packages style)
+        add_root_pyproj = {
+            str(root_path / util.PYPROJ): str(util.EXTRA_PYPROJ / "root" / util.PYPROJ)
+        }
         if style == "packages":
             add_packages_pyproj = {
-                str(f.parents[1] / util.PYPROJ): str(util.EXTRA_PYPROJ / f.name / util.PYPROJ) for f in found
+                str(f.parents[1] / util.PYPROJ): str(util.EXTRA_PYPROJ / f.name / util.PYPROJ)
+                for f in found
             }
         else:
             add_packages_pyproj = {}

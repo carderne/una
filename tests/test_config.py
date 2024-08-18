@@ -22,7 +22,11 @@ dependencies = ["fastapi~=0.109.2", "uvicorn~=0.25.0", "tomlkit"]
 @pytest.fixture
 def use_fake(monkeypatch: MonkeyPatch):
     def patch():
-        monkeypatch.setattr(config, "load_conf", lambda _: config.load_conf_from_str(BASE_PYPROJECT))  # type: ignore[reportUnknownArgumentType]
+        monkeypatch.setattr(
+            config,
+            "load_conf",
+            lambda _: config.load_conf_from_str(BASE_PYPROJECT),  # type: ignore[reportUnknownArgumentType]
+        )
 
     return patch
 
