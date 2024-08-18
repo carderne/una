@@ -11,6 +11,9 @@ copyright: 'Copyright &copy; Chris Arderne 2024'
 
 theme:
   name: material
+  language: en
+  favicon: assets/logo.svg
+  logo: assets/logo-transparent.svg
   features:
     - content.action.edit
     - content.code.copy

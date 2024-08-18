@@ -1,5 +1,25 @@
 # una
 
+<div align="center">
+  <img src="assets/logo.svg" width="100">
+  <p>Easy monorepos with Python</p>
+</div>
+
+----
+<div align="center">
+
+<a href="https://pypi.org/project/una/">
+<img alt="pypi" src="https://img.shields.io/pypi/v/una.svg?logo=pypi&label=PyPI&logoColor=gold">
+</a>
+<a href="https://una.rdrn.me/">
+<img alt="docs" src="https://img.shields.io/badge/Docs-gray?logo=materialformkdocs&logoColor=white">
+</a>
+<a href="https://github.com/carderne/una">
+<img alt="GitHub" src="https://img.shields.io/badge/GitHub-una-blue?logo=github">
+</a>
+
+</div>
+
 una is a tool to make Python monorepos with Rye easier. It is a CLI tool and a Hatch plugin that does the following things:
 
 1. Enable builds of individual apps or projects within a monorepo.
@@ -22,5 +42,6 @@ Within this context, we use the following words frequently:
 
 ## Examples
 You can see examples for each of the two styles here:
+
 - [una-example-packages](https://github.com/carderne/una-example-packages)
 - [una-example-modules](https://github.com/carderne/una-example-modules)
