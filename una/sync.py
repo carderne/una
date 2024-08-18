@@ -54,16 +54,10 @@ def print_summary(diff: Diff) -> None:
     name = diff.name
     apps_pkgs = diff.apps
     libs_pkgs = diff.libs
-    anything_to_sync = apps_pkgs or libs_pkgs
-    emoji = ":point_right:" if anything_to_sync else ":heavy_check_mark:"
-    printable_name = f"[proj]{name}[/]"
-    console.print(f"{emoji} {printable_name}")
     for b in apps_pkgs:
         console.print(f"adding [app]{b}[/] app to [proj]{name}[/]")
     for c in libs_pkgs:
         console.print(f"adding [lib]{c}[/] lib to [proj]{name}[/]")
-    if anything_to_sync:
-        console.print("")
 
 
 def to_package(ns: str, name: str, int_dep_root: str, style: Style) -> Include:

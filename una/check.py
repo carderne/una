@@ -39,6 +39,19 @@ def with_ext_deps_from_lock_file(project: Proj) -> Proj:
     return project
 
 
+def enriched_with_lock_file_data(project: Proj, is_verbose: bool) -> Proj:
+    try:
+        return with_ext_deps_from_lock_file(project)
+    except ValueError as e:
+        if is_verbose:
+            print(f"{project.name}: {e}")
+        return project
+
+
+def enriched_with_lock_files_data(projects: list[Proj], is_verbose: bool) -> list[Proj]:
+    return [enriched_with_lock_file_data(p, is_verbose) for p in projects]
+
+
 def collect_known_aliases(project: Proj, options: Options) -> set[str]:
     return distributions.known_aliases_and_sub_dependencies(project.ext_deps, options.alias)
 

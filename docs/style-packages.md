@@ -1,4 +1,8 @@
 # Style: Packages
+
+You can see an example of the Modules style here:
+- [una-example-packages](https://github.com/carderne/una-example-packages)
+
 In this setup, we use Rye's built-in workspace support. The structure will look something like this:
 ```bash
 .

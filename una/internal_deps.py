@@ -148,6 +148,10 @@ def get_projects_data(root: Path, ns: str) -> list[Proj]:
     return get_int_deps_in_projects(root, lib_names, app_names, ns)
 
 
+def filtered_projects_data(projects: list[Proj]) -> list[Proj]:
+    return [p for p in projects if Path.cwd().name in p.path.as_posix()]
+
+
 def int_dep_status_projects(int_dep: str, int_deps: list[str], for_info: bool) -> str:
     emoji = ":heavy_check_mark:" if for_info else ":gear:"
     status = emoji if int_dep in int_deps else "-"

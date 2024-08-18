@@ -1,6 +1,4 @@
 # una
-**Warning: this is pre-alpha and probably doesn't work at all. You'll probably just get frustrated if you even try to use it.**
-
 una is a tool to make Python monorepos with Rye easier. It is a CLI tool and a Hatch plugin that does the following things:
 1. Enable builds of individual apps or projects within a monorepo.
 2. Ensure that internal and external dependencies are correctly specified.
@@ -20,8 +18,8 @@ Within this context, we use the following words frequently:
 
 ## Examples
 You can see examples for each of the two styles here:
-- [carderne/una-example-packages](https://github.com/carderne/una-example-packages)
-- [carderne/una-example-modules](https://github.com/carderne/una-example-modules)
+- [una-example-packages](https://github.com/carderne/una-example-packages)
+- [una-example-modules](https://github.com/carderne/una-example-modules)
 
 ## Quickstart
 This will give you a quick view of how this all works.

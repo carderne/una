@@ -148,7 +148,7 @@ def create_package(path: Path, name: str, top_dir: str, content: str, dependenci
     create_file(
         app_dir,
         defaults.pyproj,
-        content,
+        pyproj_content,
     )
 
 

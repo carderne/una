@@ -1,7 +1,5 @@
 # una
 
-**Warning: this is pre-alpha and probably doesn't work at all. You'll probably just get frustrated if you even try to use it.**
-
 una is a tool to make Python monorepos with Rye easier. It is a CLI tool and a Hatch plugin that does the following things:
 
 1. Enable builds of individual apps or projects within a monorepo.
@@ -21,3 +19,8 @@ Within this context, we use the following words frequently:
 - `lib`: a module or package that will be imported but not run.
 - `app`: a module or package that will be run but never imported.
 - `project`: a package with no code but only dependencies (only used in the `modules` style)
+
+## Examples
+You can see examples for each of the two styles here:
+- [una-example-packages](https://github.com/carderne/una-example-packages)
+- [una-example-modules](https://github.com/carderne/una-example-modules)

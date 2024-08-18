@@ -18,6 +18,10 @@ def _load_conf(path: Path) -> Conf:
         return load_conf_from_str(f.read())
 
 
+def clear_conf_cache() -> None:
+    _load_conf.cache_clear()
+
+
 def load_conf(path: Path) -> Conf:
     fullpath = (path / defaults.pyproj).resolve()
     return _load_conf(fullpath)

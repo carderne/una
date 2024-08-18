@@ -66,3 +66,7 @@ And run it:
 docker build --tag unarepo-printer .
 docker run --rm -it unarepo-printer python -c 'from unarepo.printer import run; run()'
 ```
+
+## Example
+After running through the steps above, the result will be similar to the Projects style example repo:
+- [una-example-packages](https://github.com/carderne/una-example-packages)
