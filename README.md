@@ -1,4 +1,4 @@
-# una
+# Una
 
 <div align="center">
   <img src="docs/assets/logo.svg" width="100">
@@ -20,25 +20,34 @@
 
 </div>
 
-una is a tool to make Python monorepos with Rye easier. It is a CLI tool and a Hatch plugin that does the following things:
+Una is a tool to make Python monorepos with Rye easier. It is a CLI tool and a build plugin that does the following things:
+
 1. Enable builds of individual apps or projects within a monorepo.
 2. Ensure that internal and external dependencies are correctly specified.
 
-una is inspired by [python-polylith](https://github.com/DavidVujic/python-polylith) and is based on that codebase.
-But I find the [Polylith](https://polylith.gitbook.io/polylith) architecture to be quite intimidating for many, so wanted to create a lighter touch alternative that doesn't require too much re-thinking. This project has very limited ambitions and doesn't try to do everything a proper build system such as [Bazel](https://bazel.build/) or [Pants](https://www.pantsbuild.org/) does.
+Una is inspired by [python-polylith](https://github.com/DavidVujic/python-polylith) and borrows extensively from that codebase.
+But I find the [Polylith](https://polylith.gitbook.io/polylith) architecture to be quite intimidating for many, so wanted to create a lighter touch alternative that doesn't require too much re-thinking.
+This project has very limited ambitions and doesn't try to do everything a proper build system such as [Bazel](https://bazel.build/) or [Pants](https://www.pantsbuild.org/) does.
 It just tries to make a simple monorepo build just about possible.
 
-una allows two directory structures or styles:
+Una allows two directory structures or styles:
 - `packages`: this is the default style, that is just some extra build help on top of a Rye workspace.
 - `modules`: a more novel approach with just a single pyproject.toml, arguably better DevX and doesn't require a Rye workspace.
 
 Within this context, we use the following words frequently:
+
 - `lib`: a module or package that will be imported but not run.
 - `app`: a module or package that will be run but never imported.
 - `project`: a package with no code but only dependencies (only used in the `modules` style)
 
+Currently it works with the following build backends, but more will follow:
+
+- [Hatch](https://hatch.pypa.io) (used by default and and in all documentation)
+- [PDM](https://pdm-project.org/)
+
 ## Examples
 You can see examples for each of the two styles here:
+
 - [una-example-packages](https://github.com/carderne/una-example-packages)
 - [una-example-modules](https://github.com/carderne/una-example-modules)
 
@@ -52,7 +61,7 @@ cd unarepo
 rye add --dev una
 ```
 
-Then setup the una workspace. This will generate a structure and an example lib and app.
+Then setup the Una workspace. This will generate a structure and an example lib and app.
 ```
 rye run una create workspace
 rye sync
@@ -66,7 +75,7 @@ tree
 Have a look at the generated `__init__.py` files in the `apps/printer` and `libs/greeter` packages.
 An external dependency ([cowsay-python](https://pypi.org/project/cowsay-python/)) has also been added to the latter's `pyproject.toml`.
 
-The magic of `una` then comes in to resolve the graph of direct and transitive dependencies, which looks like this:
+The magic of Una then comes in to resolve the graph of direct and transitive dependencies, which looks like this:
 ```elm
 printer --> greeter --> cowsay-python
 ```
@@ -155,4 +164,4 @@ It covers additional things like:
 - and more!
 
 ## License
-una is distributed under the terms of the MIT license.
+Una is distributed under the terms of the MIT license.

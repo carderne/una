@@ -34,9 +34,9 @@ The key differences are as follows:
 So we add `projects/` directory. This contains no code, just a pyproject.toml and whatever else is needed to deploy the built project.
 The pyproject will specify which internal dependencies are used in the project: exactly one app, and zero or more libs.
 4. It must also specify all external dependencies that are used, including the transitive dependencies of internal libs that it uses.
-But the una CLI will help with this!
+But the Una CLI will help with this!
 
 And there's one more benefit:
 5. You can run pyright and pytest from the root directory!
 This gives you a true monorepo benefit of having a single static analysis of the entire codebase.
-But don't worry, una will help you to only test the bits that are needed.
+But don't worry, Una will help you to only test the bits that are needed.

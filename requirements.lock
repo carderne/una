@@ -11,6 +11,7 @@
 
 -e file:.
 -e file:plugins/hatch
+-e file:plugins/pdm
 click==8.1.7
     # via typer
 dataclasses-json==0.6.7
