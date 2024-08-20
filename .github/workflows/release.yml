@@ -3,7 +3,7 @@ on:
   release:
     types: [published]
 jobs:
-  publish-una:
+  publish-all:
     environment: release
     runs-on: ubuntu-latest
     permissions:
@@ -14,20 +14,5 @@ jobs:
         id: setup-rye
         with:
           version: '0.38.0'
-      - run: rye build
-      - uses: pypa/gh-action-pypi-publish@release/v1
-
-  publish-hatch-una:
-    environment: release
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: eifinger/setup-rye@v3
-        id: setup-rye
-        with:
-          version: '0.38.0'
-      - run: rye build
-        working-directory: plugins/hatch
+      - run: rye build --all
       - uses: pypa/gh-action-pypi-publish@release/v1

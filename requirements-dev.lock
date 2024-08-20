@@ -11,6 +11,7 @@
 
 -e file:.
 -e file:plugins/hatch
+-e file:plugins/pdm
 babel==2.16.0
     # via mkdocs-material
 basedpyright==1.15.2
@@ -75,6 +76,7 @@ paginate==0.5.6
 pathspec==0.12.1
     # via hatchling
     # via mkdocs
+pdm-backend==2.3.3
 platformdirs==4.2.2
     # via mkdocs-get-deps
 pluggy==1.5.0

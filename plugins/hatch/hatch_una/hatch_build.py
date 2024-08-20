@@ -54,7 +54,9 @@ class UnaBuildHook(BuildHookInterface[BuilderConfig]):
         # need to add the root workspace pyproject.toml so that in src -> sdist -> wheel builds,
         # we can still determine the style (for packages style)
         add_root_pyproj = {
-            str(root_path / util.PYPROJ): str(util.EXTRA_PYPROJ / "root" / util.PYPROJ)
+            str(root_path / util.PYPROJ): str(
+                util.EXTRA_PYPROJ / util.ROOT_PYPROJ_SUBDIR / util.PYPROJ
+            )
         }
         if style == "packages":
             add_packages_pyproj = {

@@ -1,6 +1,6 @@
 # Build
 
-At build-time, `una` itself does nothing.
+At build-time, Una itself does nothing.
 This is when `hatch-una`, the plugin for [Hatch](https://hatch.pypa.io/) steps in and resolves the graph of dependencies.
 
 Assuming your `pyproject.toml` is correctly configured, and your `[tool.una.libs]` section includes all necessary dependencies (_and_ transitive dependencies!),
@@ -17,4 +17,5 @@ rye build --wheel
 rye run build
 ```
 
-You'll get some `*.whl` files, which you can then deploy with Docker or whatever you prefer. They are fully self-contained, so you don't need Rye or `una` or anything else wherever you want to install them.
+You'll get some `*.whl` files, which you can then deploy with Docker or whatever you prefer.
+They are fully self-contained, so you don't need Rye or Una or anything else wherever you want to install them.

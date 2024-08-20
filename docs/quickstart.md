@@ -8,7 +8,7 @@ cd unarepo
 rye add --dev una
 ```
 
-Then setup the una workspace. This will generate a structure and an example lib and app.
+Then setup the Una workspace. This will generate a structure and an example lib and app.
 ```
 rye run una create workspace
 rye sync
@@ -22,7 +22,7 @@ tree
 Have a look at the generated `__init__.py` files in the `apps/printer` and `libs/greeter` packages.
 An external dependency ([cowsay-python](https://pypi.org/project/cowsay-python/)) has also been added to the latter's `pyproject.toml`.
 
-The magic of `una` then comes in to resolve the graph of direct and transitive dependencies, which looks like this:
+The magic of Una then comes in to resolve the graph of direct and transitive dependencies, which looks like this:
 ```elm
 printer --> greeter --> cowsay-python
 ```
