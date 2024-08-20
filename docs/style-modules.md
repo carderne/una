@@ -4,7 +4,7 @@ You can see an example of the Modules style here:
 - [una-example-modules](https://github.com/carderne/una-example-modules)
 
 This approach is inspired by [Polylith](https://davidvujic.github.io/python-polylith-docs/).
-You don't use a Rye workspace (and indeed this approach will work with just Hatch), and there's only a single `pyproject.toml`.
+Each app or lib is just a module with no pyproject.toml.
 
 The structure looks like this:
 ```bash

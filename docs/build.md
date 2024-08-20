@@ -18,4 +18,4 @@ rye run build
 ```
 
 You'll get some `*.whl` files, which you can then deploy with Docker or whatever you prefer.
-They are fully self-contained, so you don't need Rye or Una or anything else wherever you want to install them.
+They are fully self-contained, so you don't need Hatch/Rye/PDM or Una or anything else wherever you want to install them.
