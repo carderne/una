@@ -1,7 +1,7 @@
 # Una
 
 <div align="center">
-  <img src="docs/assets/logo.svg" width="100">
+  <img src="https://raw.githubusercontent.com/carderne/una/main/docs/assets/logo.svg" alt="Una logo" width="100" role="img">
   <p>Easy monorepos with Python</p>
 </div>
 

@@ -4,7 +4,7 @@ from typing import Annotated
 from rich.console import Console
 from typer import Argument, Exit, Option, Typer
 
-from una import check, config, defaults, differ, external_deps, files, internal_deps, sync
+from una import check, config, defaults, external_deps, files, internal_deps, sync
 from una.types import Options, Style
 
 app = Typer(name="una", no_args_is_help=True, add_completion=False)
@@ -41,15 +41,6 @@ def info_command(
     external_deps.print_libs_in_projects(filtered_projects, options)
     if not all(results):
         raise Exit(code=1)
-
-
-@app.command("diff")
-def diff_command(
-    since: Annotated[str, Option(help="Changed since a specific tag.")] = "",
-    int_deps: Annotated[bool, Option(help="Print changed int_deps.")] = False,
-):
-    """Shows changed int_deps compared to the latest git tag."""
-    differ.calc_diff(since, int_deps)
 
 
 @app.command("sync")

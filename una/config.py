@@ -69,14 +69,6 @@ def get_style(path: Path) -> Style:
     return load_conf(path).tool.una.style
 
 
-def get_tag_pattern(key: str | None) -> str:
-    return "v*"
-
-
-def get_tag_sort_options() -> list[str]:
-    return ["-committerdate"]
-
-
 def get_int_dep_structure(root: Path) -> str:
     root_conf = load_conf(root)
     style = root_conf.tool.una.style
