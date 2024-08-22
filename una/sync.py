@@ -11,16 +11,16 @@ from una.types import Conf, Diff, Include, Options, Proj, Style
 def sync_project_int_deps(root: Path, ns: str, project: Proj, options: Options):
     apps_pkgs = files.get_apps(root, ns)
     libs_pkgs = files.get_libs(root, ns)
-    diff = calculate_diff(root, ns, project, apps_pkgs, libs_pkgs)
-    update_project(ns, diff)
+    diff = _calculate_diff(root, ns, project, apps_pkgs, libs_pkgs)
+    _update_project(ns, diff)
     if options.quiet:
         return
-    print_summary(diff)
+    _print_summary(diff)
     if options.verbose:
-        print_int_dep_imports(diff)
+        _print_int_dep_imports(diff)
 
 
-def calculate_diff(
+def _calculate_diff(
     root: Path,
     ns: str,
     project: Proj,
@@ -44,13 +44,13 @@ def calculate_diff(
     )
 
 
-def print_int_dep_imports(diff: Diff) -> None:
+def _print_int_dep_imports(diff: Diff) -> None:
     int_dep_imports = diff.int_dep_imports
     check.print_int_dep_imports(int_dep_imports)
 
 
-def print_summary(diff: Diff) -> None:
-    console = Console(theme=defaults.una_theme)
+def _print_summary(diff: Diff) -> None:
+    console = Console(theme=defaults.RICH_THEME)
     name = diff.name
     apps_pkgs = diff.apps
     libs_pkgs = diff.libs
@@ -60,40 +60,40 @@ def print_summary(diff: Diff) -> None:
         console.print(f"adding [lib]{c}[/] lib to [proj]{name}[/]")
 
 
-def to_package(ns: str, name: str, int_dep_root: str, style: Style) -> Include:
+def _to_package(ns: str, name: str, int_dep_root: str, style: Style) -> Include:
     root = Path(int_dep_root)
     src = root / ns / name if style == Style.modules else root / name / ns / name
     dst = Path(ns) / name
     return Include(src=str(src), dst=str(dst))
 
 
-def generate_updated_project(conf: Conf, packages: list[Include]) -> str | None:
+def _generate_updated_project(conf: Conf, packages: list[Include]) -> str | None:
     for inc in packages:
-        conf.tool.una.libs[inc.src] = inc.dst
+        conf.tool.una.deps[inc.src] = inc.dst
     return conf.to_str()
 
 
-def to_packages(ns: str, diff: Diff) -> list[Include]:
+def _to_packages(ns: str, diff: Diff) -> list[Include]:
     root = config.get_workspace_root()
     style = config.get_style(root)
     apps_path = "../../apps"
     libs_path = "../../libs"
-    a = [to_package(ns, b, apps_path, style) for b in diff.apps]
-    b = [to_package(ns, c, libs_path, style) for c in diff.libs]
+    a = [_to_package(ns, b, apps_path, style) for b in diff.apps]
+    b = [_to_package(ns, c, libs_path, style) for c in diff.libs]
     return a + b
 
 
-def rewrite_project_file(path: Path, packages: list[Include]):
+def _rewrite_project_file(path: Path, packages: list[Include]):
     conf = load_conf(path)
-    generated = generate_updated_project(conf, packages)
+    generated = _generate_updated_project(conf, packages)
     if not generated:
         return
-    fullpath = path / defaults.pyproj
+    fullpath = path / defaults.PYPROJ_FILE
     with fullpath.open("w", encoding="utf-8") as f:
         f.write(generated)
 
 
-def update_project(ns: str, diff: Diff):
-    packages = to_packages(ns, diff)
+def _update_project(ns: str, diff: Diff):
+    packages = _to_packages(ns, diff)
     if packages:
-        rewrite_project_file(diff.path, packages)
+        _rewrite_project_file(diff.path, packages)

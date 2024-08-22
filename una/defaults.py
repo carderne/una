@@ -1,6 +1,6 @@
 from rich.theme import Theme
 
-una_theme = Theme(
+RICH_THEME = Theme(
     {
         "data": "#999966",
         "proj": "#8A2BE2",
@@ -9,21 +9,20 @@ una_theme = Theme(
     }
 )
 
-keep_file_name = ".keep"
-lock_file = "requirements.lock"
-root_file = ".git"
-pyproj = "pyproject.toml"
+KEEP_FILE = ".keep"
+LOCK_FILE = "requirements.lock"
+ROOT_FILE = ".git"
+PYPROJ_FILE = "pyproject.toml"
 
 libs_dir = "libs"
 apps_dir = "apps"
-proj_dir = "projects"
 
-example_app = "printer"
-example_lib = "greeter"
+EXAMPLE_APP_NAME = "printer"
+EXAMPLE_LIB_NAME = "greeter"
 
-example_import = "cowsay-python==1.0.2"
+EXAMPLE_IMPORT = "cowsay-python==1.0.2"
 
-packages_pyproj = """\
+PACKAGE_STYLE_PYPROJ_TEMPLATE = """\
 [project]
 name = "{name}"
 version = "0.1.0"
@@ -47,10 +46,10 @@ dev-dependencies = []
 [tool.hatch.build.hooks.una-build]
 [tool.hatch.metadata.hooks.una-meta]
 
-[tool.una.libs]
+[tool.una.deps]
 """
 
-projects_pyproj = """\
+MODULE_STYLE_PYPROJ_TEMPLATE = """\
 [project]
 name = "{name}"
 version = "0.1.0"
@@ -71,19 +70,19 @@ packages = ["{ns}"]
 
 [tool.hatch.build.hooks.una-build]
 
-[tool.una.libs]
+[tool.una.deps]
 """
 
-example_packages_style_app_deps = """\
+EXAMPLE_APP_DEPS = """\
 "../../libs/{lib_name}/{ns}/{lib_name}" = "{ns}/{lib_name}"
 """
 
-example_modules_style_project_deps = """\
+EXAMPLE_PROJECT_DEPS = """\
 "../../apps/{ns}/{app_name}" = "{ns}/{app_name}"
 "../../libs/{ns}/{lib_name}" = "{ns}/{lib_name}"
 """
 
-app_template = """\
+EXAMPLE_APP_CODE = """\
 import {ns}.{lib_name} as {lib_name}
 
 
@@ -91,7 +90,7 @@ def run() -> None:
     print({lib_name}.greet())
 """
 
-lib_template = """\
+EXAMPLE_LIB_CODE = """\
 import cowsay
 
 
@@ -99,7 +98,7 @@ def greet() -> str:
     return cowsay.say("Hello from una!")
 """
 
-test_template = """\
+EXAMPLE_TEST_CODE = """\
 from {ns} import {name}
 
 

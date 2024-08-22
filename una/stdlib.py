@@ -2,9 +2,26 @@
 
 import sys
 
-stdlib_python_3_8 = {
+
+def get_stdlib() -> set[str]:
+    stdlib_312 = _to_py312()
+    libs = {11: STDLIB_311, 12: stdlib_312}
+    return libs.get(sys.version_info.minor, stdlib_312)
+
+
+def _merge(stdlib: set[str], added: set[str], removed: set[str]) -> set[str]:
+    return {k for k in stdlib.union(added) if k not in removed}
+
+
+def _to_py312() -> set[str]:
+    added: set[str] = set()
+    removed = {"asynchat", "asyncore", "distutils", "imp", "smtpd"}
+    return _merge(STDLIB_311, added, removed)
+
+
+STDLIB_311 = {
     "_ast",
-    "_dummy_thread",
+    # "_dummy_thread",  # removed in 3.9
     "_thread",
     "abc",
     "aifc",
@@ -19,7 +36,7 @@ stdlib_python_3_8 = {
     "base64",
     "bdb",
     "binascii",
-    "binhex",
+    # "binhex",  # removed in 3.11
     "bisect",
     "builtins",
     "bz2",
@@ -54,7 +71,7 @@ stdlib_python_3_8 = {
     "dis",
     "distutils",
     "doctest",
-    "dummy_threading",
+    # "dummy_threading",  # removed in 3.9
     "email",
     "encodings",
     "ensurepip",
@@ -65,7 +82,7 @@ stdlib_python_3_8 = {
     "filecmp",
     "fileinput",
     "fnmatch",
-    "formatter",
+    # "formatter",  # removed in 3.10
     "fractions",
     "ftplib",
     "functools",
@@ -115,7 +132,7 @@ stdlib_python_3_8 = {
     "optparse",
     "os",
     "ossaudiodev",
-    "parser",
+    # "parser",  # removed in 3.10
     "pathlib",
     "pdb",
     "pickle",
@@ -172,7 +189,7 @@ stdlib_python_3_8 = {
     "struct",
     "subprocess",
     "sunau",
-    "symbol",
+    # "symbol",  # removed in 3.10
     "symtable",
     "sys",
     "sysconfig",
@@ -218,53 +235,17 @@ stdlib_python_3_8 = {
     "zipfile",
     "zipimport",
     "zlib",
+    # Python 3.9
+    "graphlib",
+    "zoneinfo",
+    # Python 3.10
+    "idlelib",
+    # Python 3.11
+    "tomllib",
+    "_tkinter",
+    "sitecustomize",
+    "usercustomize",
+    # Extras
+    "__future__",
+    "pkg_resources",
 }
-
-
-def omit(data: set[str], keys: set[str]) -> set[str]:
-    return {k for k in data if k not in keys}
-
-
-def union(stdlib: set[str], news: set[str], removed: set[str]) -> set[str]:
-    return omit(stdlib.union(news), removed)
-
-
-def with_extras(stdlib: set[str]) -> set[str]:
-    extras = {"__future__", "pkg_resources"}
-    return stdlib.union(extras)
-
-
-def to_py39(stdlib: set[str]) -> set[str]:
-    news = {"graphlib", "zoneinfo"}
-    removed = {"_dummy_thread", "dummy_threading"}
-    return union(stdlib, news, removed)
-
-
-def to_py310(stdlib: set[str]) -> set[str]:
-    news = {"idlelib"}
-    removed = {"formatter", "parser", "symbol"}
-    return union(stdlib, news, removed)
-
-
-def to_py311(stdlib: set[str]) -> set[str]:
-    news = {"tomllib", "_tkinter", "sitecustomize", "usercustomize"}
-    removed = {"binhex"}
-    return union(stdlib, news, removed)
-
-
-def to_py312(stdlib: set[str]) -> set[str]:
-    news: set[str] = set()
-    removed = {"asynchat", "asyncore", "distutils", "imp", "smtpd"}
-    return union(stdlib, news, removed)
-
-
-py38 = with_extras(stdlib_python_3_8)
-py39 = to_py39(py38)
-py310 = to_py310(py39)
-py311 = to_py311(py310)
-py312 = to_py312(py311)
-
-
-def get_stdlibs() -> set[str]:
-    libs = {10: py310, 11: py311, 12: py312}
-    return libs.get(sys.version_info.minor, py312)

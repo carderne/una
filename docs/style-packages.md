@@ -61,7 +61,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.hooks.una-build]
 [tool.hatch.build.hooks.una-meta]
-[tool.una.libs]
+[tool.una.deps]
 "../../libs/mylib/example/mylib" = "example/mylib"
 ```
 4. Then you can run `rye build --wheel` from that package directory and Una will inject everything that is needed.

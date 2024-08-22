@@ -84,10 +84,10 @@ def lib_command(
     root = config.get_workspace_root()
     style = config.get_style(root)
     if style == Style.packages:
-        files.create_package(root, defaults.example_lib, defaults.libs_dir, "", "")
+        files.create_package(root, defaults.EXAMPLE_LIB_NAME, defaults.libs_dir, "", "")
     else:
-        files.create_module(root, defaults.example_lib, defaults.libs_dir, "")
-    console = Console(theme=defaults.una_theme)
+        files.create_module(root, defaults.EXAMPLE_LIB_NAME, defaults.libs_dir, "")
+    console = Console(theme=defaults.RICH_THEME)
     console.print("Success!")
     console.print(f"Created lib {name}")
 
@@ -100,10 +100,10 @@ def app_command(
     root = config.get_workspace_root()
     style = config.get_style(root)
     if style == Style.packages:
-        files.create_package(root, defaults.example_app, defaults.apps_dir, "", "")
+        files.create_package(root, defaults.EXAMPLE_APP_NAME, defaults.apps_dir, "", "")
     else:
-        files.create_module(root, defaults.example_app, defaults.apps_dir, "")
-    console = Console(theme=defaults.una_theme)
+        files.create_module(root, defaults.EXAMPLE_APP_NAME, defaults.apps_dir, "")
+    console = Console(theme=defaults.RICH_THEME)
     console.print("Success!")
     console.print(f"Created app {name}")
 
@@ -116,7 +116,7 @@ def project_command(
     """Creates an Una project."""
     root = config.get_workspace_root()
     style = config.get_style(root)
-    console = Console(theme=defaults.una_theme)
+    console = Console(theme=defaults.RICH_THEME)
     if style == Style.packages:
         console.print("You can't create projects in a Packages style workspace")
         raise Exit(code=1)
@@ -135,7 +135,7 @@ def workspace_command(
     root = config.get_workspace_root()
     ns = config.get_ns(root)
     files.create_workspace(path, ns, style)
-    console = Console(theme=defaults.una_theme)
+    console = Console(theme=defaults.RICH_THEME)
     console.print("Success!")
     console.print("Set up workspace in current directory.")
     console.print("Remember to delete the src/ directory")

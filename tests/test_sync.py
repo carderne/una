@@ -1,3 +1,4 @@
+# pyright: reportPrivateUsage=false
 from pathlib import Path
 
 from una import config, sync
@@ -10,7 +11,7 @@ def test_int_dep_to_pyproject_package():
     root = "../../libs"
     expected_proj = Include(src=f"{root}/{ns}/{int_dep}", dst=f"{ns}/{int_dep}")
     style = Style.modules
-    res_proj = sync.to_package(ns, int_dep, root, style)
+    res_proj = sync._to_package(ns, int_dep, root, style)
     assert res_proj == expected_proj
 
 
@@ -29,16 +30,17 @@ def test_int_deps_to_pyproject_packages():
         libs={lib_name},
         int_dep_imports=OrgImports(),
     )
-    res = sync.to_packages(ns, diff)
+    res = sync._to_packages(ns, diff)
     assert res == expected
 
 
-packages = [
+INCLUDES = [
     Include(src="apps/hello/first", dst="hello/first"),
     Include(src="libs/hello/second", dst="hello/second"),
     Include(src="libs/hello/third", dst="hello/third"),
 ]
-expected_hatch_packages = {
+
+EXPEXTED_HATCH_PACKAGES = {
     "apps/hello/first": "hello/first",
     "libs/hello/second": "hello/second",
     "libs/hello/third": "hello/third",
@@ -63,13 +65,13 @@ def test_generate_updated_hatch_project_with_existing_una_sections():
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 [tool.hatch.build]
-[tool.una.libs]
+[tool.una.deps]
 "apps/hello/first" = "hello/first"
 """
     conf = config.load_conf_from_str(pyproj)
-    updated = str(sync.generate_updated_project(conf, packages[1:]))
-    res = config.load_conf_from_str(updated).tool.una.libs
-    assert res == expected_hatch_packages
+    updated = str(sync._generate_updated_project(conf, INCLUDES[1:]))
+    res = config.load_conf_from_str(updated).tool.una.deps
+    assert res == EXPEXTED_HATCH_PACKAGES
 
 
 def test_generate_updated_hatch_project_with_missing_int_dep_config():
@@ -81,6 +83,6 @@ build-backend = "hatchling.build"
 [tool.hatch.build]
     """
     conf = config.load_conf_from_str(pyproj)
-    updated = str(sync.generate_updated_project(conf, packages))
-    res = config.load_conf_from_str(updated).tool.una.libs
-    assert res == expected_hatch_packages
+    updated = str(sync._generate_updated_project(conf, INCLUDES))
+    res = config.load_conf_from_str(updated).tool.una.deps
+    assert res == EXPEXTED_HATCH_PACKAGES

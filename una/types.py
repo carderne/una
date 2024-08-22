@@ -48,15 +48,15 @@ class Options:
     alias: list[str] = field(default_factory=list)
 
 
-def rename_keys(old: str, new: str) -> Callable[[Json], None]:
-    def rename_hyphens(d: Json) -> None:
+def _rename_keys(old: str, new: str) -> Callable[[Json], None]:
+    def rename(d: Json) -> None:
         if isinstance(d, dict):
             for k, v in list(d.items()):
-                rename_hyphens(v)
+                rename(v)
                 if old in k:
                     d[k.replace(old, new)] = d.pop(k)
 
-    return rename_hyphens
+    return rename
 
 
 @dataclass_json
@@ -65,7 +65,6 @@ class Project:
     name: str
     dependencies: list[str]
     version: str | None = None
-    optional_dependencies: dict[str, list[str]] | None = None
     requires_python: str = ">= 3.8"
 
 
@@ -74,11 +73,16 @@ class Style(Enum):
     modules = "modules"
 
 
+def _default_members() -> list[str]:
+    return ["libs/*", "apps/*"]
+
+
 @dataclass_json
 @dataclass(frozen=True)
 class Una:
     style: Style = Style.packages
-    libs: dict[str, str] = field(default_factory=dict)
+    members: list[str] = field(default_factory=_default_members)
+    deps: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass_json
@@ -114,7 +118,7 @@ class Conf:
     @classmethod
     def from_tomldoc(cls: type[Self], tomldoc: tomlkit.TOMLDocument) -> Self:
         orig = deepcopy(tomldoc)
-        rename_keys("-", "_")(tomldoc)
+        _rename_keys("-", "_")(tomldoc)
         res = cls.from_dict(tomldoc)
         res._tomldoc = orig
         return res
@@ -130,14 +134,14 @@ class Conf:
         for dep in new_deps:
             tomldoc["project"]["dependencies"].add_line(dep)  # type: ignore[reportIndexIssues]
 
-        # deal with a a non-existent tool.una.libs
+        # deal with a a non-existent tool.una.deps
         try:
-            tomldoc["tool"]["una"]["libs"].update(self.tool.una.libs)  # type: ignore[reportIndexIssues]
+            tomldoc["tool"]["una"]["deps"].update(self.tool.una.deps)  # type: ignore[reportIndexIssues]
         except KeyError:
             una = tomlkit.table(True)
-            libs = tomlkit.table()
-            libs.update(self.tool.una.libs)  # type: ignore[reportUnknownMemberType]
-            una.append("libs", libs)
+            deps = tomlkit.table()
+            deps.update(self.tool.una.deps)  # type: ignore[reportUnknownMemberType]
+            una.append("deps", deps)
             tomldoc["tool"].append("una", una)  # type: ignore[reportIndexIssues]
         return tomldoc
 
@@ -153,7 +157,7 @@ class Conf:
         To preserve the original formatting and make my life easy, this function
         will currently only modify the following fields:
         - project.dependencies
-        - tool.una.libs
+        - tool.una.deps
         - tool.hatch.build.hooks.una-build
         - tool.hatch.meta.hooks.una-meta
 

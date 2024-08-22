@@ -36,7 +36,7 @@ printer --> greeter --> cowsay-python
 You can do this by running the following:
 ```bash
 # this checks all imports and ensures they are added to
-# [tool.una.libs] in the appropriate pyproject.toml
+# [tool.una.deps] in the appropriate pyproject.toml
 rye run una sync
 ```
 
