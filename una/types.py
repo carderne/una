@@ -22,9 +22,6 @@ class OrgImports:
 class Include:
     src: str
     dst: str
-    # path: str
-    # include: str
-    # root: str
 
 
 @dataclass(frozen=True)
