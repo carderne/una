@@ -8,9 +8,6 @@ from pdm_una import util
 def add_dependencies(context: Context):
     """
     Inject needed third-party dependencies into project.dependencies.
-
-    This hook is only needed for Packages style una workspaces.
-    Modules style should have all dependencies specified in pyproject.toml.
     """
     print("una: Injecting transitive external dependencies")
     metadata = context.config.metadata
@@ -18,14 +15,6 @@ def add_dependencies(context: Context):
 
     conf = util.load_conf(path)
     name: str = conf["project"]["name"]
-
-    root_path = path.parents[1]
-    style = util.get_workspace_style(root_path)
-    if style == "modules":
-        # in Hatch, we raise here (should we?)
-        # but in PDM the hooks are not configured separately
-        # so just return
-        return
 
     try:
         int_deps: dict[str, str] = conf["tool"]["una"]["libs"]

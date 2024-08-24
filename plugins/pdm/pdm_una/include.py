@@ -26,24 +26,14 @@ def force_include(context: Context) -> None:
             f"App/project '{name}' is missing '[tool.una.libs]' in pyproject.toml"
         ) from e
 
-    # need to determine workspace style (packages or modules)
-    # as packages style needs dependencies' pyproject.tomls to be included
-    # so that they're available in src -> sdist -> wheel builds
-    via_sdist = (util.EXTRA_PYPROJ / util.ROOT_PYPROJ_SUBDIR / util.PYPROJ).exists()
+    via_sdist = True
     if via_sdist:
         # nothing to do as everything should already be included in sdist...
-        return
-
-    root_path = path.parents[1]
-    style = util.get_workspace_style(root_path)
+        raise ValueError("FIX THIS")
 
     if not int_deps:
-        if style == "packages":
-            # this is fine, the app doesn't import anything internally
-            return
-        else:
-            # this is an empty project, useless and accidental
-            raise ValueError(f"Project '{name}' has no dependencies")
+        # this is fine, the app doesn't import anything internally
+        return
 
     # make sure all int_deps exist
     found = [Path(k) for k in int_deps if (path / k).exists()]
@@ -52,19 +42,12 @@ def force_include(context: Context) -> None:
         missing_str = ", ".join(missing)
         raise ValueError(f"Could not find these paths: {missing_str}")
 
-    # need to add the root workspace pyproject.toml so that in src -> sdist -> wheel builds,
-    # we can still determine the style (for packages style)
-    util.copy_file(
-        root_path / util.PYPROJ,
-        build_dir / util.EXTRA_PYPROJ / util.ROOT_PYPROJ_SUBDIR / util.PYPROJ,
-    )
     for src_str, dst_str in int_deps.items():
         src = Path(src_str)
         destination = build_dir / dst_str
         util.copy_tree(src, destination)
-        if style == "packages":
-            # need these so src->sdist->wheel builds can access them for external deps
-            util.copy_file(
-                src.parents[1] / util.PYPROJ,
-                build_dir / util.EXTRA_PYPROJ / src.name / util.PYPROJ,
-            )
+        # need these so src->sdist->wheel builds can access them for external deps
+        util.copy_file(
+            src.parents[1] / util.PYPROJ,
+            build_dir / util.EXTRA_PYPROJ / src.name / util.PYPROJ,
+        )

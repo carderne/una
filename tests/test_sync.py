@@ -2,17 +2,7 @@
 from pathlib import Path
 
 from una import config, sync
-from una.types import Diff, Include, OrgImports, Style
-
-
-def test_int_dep_to_pyproject_package():
-    ns = "unit_test"
-    int_dep = "greet"
-    root = "../../libs"
-    expected_proj = Include(src=f"{root}/{ns}/{int_dep}", dst=f"{ns}/{int_dep}")
-    style = Style.modules
-    res_proj = sync._to_package(ns, int_dep, root, style)
-    assert res_proj == expected_proj
+from una.types import Diff, Include, OrgImports
 
 
 def test_int_deps_to_pyproject_packages():

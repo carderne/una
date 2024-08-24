@@ -6,8 +6,8 @@ from rich.console import Console
 from rich.padding import Padding
 from rich.table import Table
 
-from una import check, config, files, defaults
-from una.types import Imports, Include, IntDeps, OrgImports, Proj, Style
+from una import check, files, defaults
+from una.types import Imports, Include, IntDeps, OrgImports, Proj
 
 
 def int_deps_from_projects(root: Path, ns: str) -> None:
@@ -123,13 +123,11 @@ def _get_project_int_deps(
     apps_paths: list[str],
     namespace: str,
     self_name: str,
-    add_self: bool,
 ) -> IntDeps:
     paths = files.parse_package_paths(project_packages)
     libs_in_project = _get_matching_int_deps(paths, libs_paths, namespace)
     apps_in_project = _get_matching_int_deps(paths, apps_paths, namespace)
-    if add_self:
-        apps_in_project.append(self_name)
+    apps_in_project.append(self_name)
     return IntDeps(libs=libs_in_project, apps=apps_in_project)
 
 
@@ -137,9 +135,6 @@ def _get_int_deps_in_projects(
     root: Path, libs_paths: list[str], apps_paths: list[str], namespace: str
 ) -> list[Proj]:
     packages = files.get_projects(root)
-    ws_root = config.get_workspace_root()
-    style = config.get_style(ws_root)
-    add_self = style == Style.packages
     res = [
         Proj(
             name=p.name,
@@ -152,7 +147,6 @@ def _get_int_deps_in_projects(
                 apps_paths,
                 namespace,
                 p.name,
-                add_self,
             ),
         )
         for p in packages

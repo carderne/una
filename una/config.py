@@ -3,7 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from una import defaults
-from una.types import Conf, ExtDeps, Include, Style
+from una.types import Conf, ExtDeps, Include
 
 
 def load_conf_from_str(s: str) -> Conf:
@@ -56,17 +56,8 @@ def get_ns(path: Path) -> str:
     return sanitise_name(load_conf(path).project.name)
 
 
-def get_style(path: Path) -> Style:
-    return load_conf(path).tool.una.style
-
-
 def get_int_dep_structure(root: Path) -> str:
-    root_conf = load_conf(root)
-    style = root_conf.tool.una.style
-    if style == Style.packages:
-        return "{int_dep}/{package}"
-    else:
-        return "{int_dep}/{ns}/{package}"
+    return "{int_dep}/{package}"
 
 
 def get_workspace_root() -> Path:

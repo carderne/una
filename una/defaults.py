@@ -22,7 +22,7 @@ EXAMPLE_LIB_NAME = "greeter"
 
 EXAMPLE_IMPORT = "cowsay-python==1.0.2"
 
-PACKAGE_STYLE_PYPROJ_TEMPLATE = """\
+PYPROJ_TEMPLATE = """\
 [project]
 name = "{name}"
 version = "0.1.0"
@@ -49,37 +49,8 @@ dev-dependencies = []
 [tool.una.deps]
 """
 
-MODULE_STYLE_PYPROJ_TEMPLATE = """\
-[project]
-name = "{name}"
-version = "0.1.0"
-description = ""
-authors = []
-dependencies = [{dependencies}]
-requires-python = "{python_version}"
-
-[build-system]
-requires = ["hatchling", "hatch-una"]
-build-backend = "hatchling.build"
-
-[tool.hatch.metadata]
-allow-direct-references = true
-
-[tool.hatch.build]
-packages = ["{ns}"]
-
-[tool.hatch.build.hooks.una-build]
-
-[tool.una.deps]
-"""
-
 EXAMPLE_APP_DEPS = """\
 "../../libs/{lib_name}/{ns}/{lib_name}" = "{ns}/{lib_name}"
-"""
-
-EXAMPLE_PROJECT_DEPS = """\
-"../../apps/{ns}/{app_name}" = "{ns}/{app_name}"
-"../../libs/{ns}/{lib_name}" = "{ns}/{lib_name}"
 """
 
 EXAMPLE_APP_CODE = """\

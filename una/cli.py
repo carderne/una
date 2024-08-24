@@ -5,7 +5,7 @@ from rich.console import Console
 from typer import Argument, Exit, Option, Typer
 
 from una import check, config, defaults, external_deps, files, internal_deps, sync
-from una.types import Options, Style
+from una.types import Options
 
 app = Typer(name="una", no_args_is_help=True, add_completion=False)
 create = Typer(no_args_is_help=True)
@@ -82,11 +82,7 @@ def lib_command(
 ):
     """Creates an Una lib."""
     root = config.get_workspace_root()
-    style = config.get_style(root)
-    if style == Style.packages:
-        files.create_package(root, defaults.EXAMPLE_LIB_NAME, defaults.libs_dir, "", "")
-    else:
-        files.create_module(root, defaults.EXAMPLE_LIB_NAME, defaults.libs_dir, "")
+    files.create_package(root, defaults.EXAMPLE_LIB_NAME, defaults.libs_dir, "", "")
     console = Console(theme=defaults.RICH_THEME)
     console.print("Success!")
     console.print(f"Created lib {name}")
@@ -98,43 +94,19 @@ def app_command(
 ):
     """Creates an Una app."""
     root = config.get_workspace_root()
-    style = config.get_style(root)
-    if style == Style.packages:
-        files.create_package(root, defaults.EXAMPLE_APP_NAME, defaults.apps_dir, "", "")
-    else:
-        files.create_module(root, defaults.EXAMPLE_APP_NAME, defaults.apps_dir, "")
+    files.create_package(root, defaults.EXAMPLE_APP_NAME, defaults.apps_dir, "", "")
     console = Console(theme=defaults.RICH_THEME)
     console.print("Success!")
     console.print(f"Created app {name}")
 
 
-@create.command("project")
-def project_command(
-    name: Annotated[str, Argument(help="Name of the projectlib.")],
-    from_app: Annotated[str, Argument(help="Name of the app the project will use.")],
-):
-    """Creates an Una project."""
-    root = config.get_workspace_root()
-    style = config.get_style(root)
-    console = Console(theme=defaults.RICH_THEME)
-    if style == Style.packages:
-        console.print("You can't create projects in a Packages style workspace")
-        raise Exit(code=1)
-
-    files.create_project(root, name, "", from_app)
-    console.print("Success!")
-    console.print(f"Created project {name}")
-
-
 @create.command("workspace")
-def workspace_command(
-    style: Annotated[Style, Option(help="Workspace style")] = "packages",  # type:ignore[reportArgumentType]
-):
+def workspace_command():
     """Creates an Una workspace in the current directory."""
     path = Path.cwd()
     root = config.get_workspace_root()
     ns = config.get_ns(root)
-    files.create_workspace(path, ns, style)
+    files.create_workspace(path, ns)
     console = Console(theme=defaults.RICH_THEME)
     console.print("Success!")
     console.print("Set up workspace in current directory.")

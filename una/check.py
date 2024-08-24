@@ -4,7 +4,7 @@ from pathlib import Path
 from rich.console import Console
 
 from una import config, defaults, distributions, external_deps, files, lock_files, parse
-from una.types import CheckReport, ExtDeps, Imports, Options, OrgImports, Proj, Style
+from una.types import CheckReport, ExtDeps, Imports, Options, OrgImports, Proj
 
 
 def check_int_ext_deps(root: Path, ns: str, project: Proj, options: Options) -> bool:
@@ -163,12 +163,7 @@ def _create_report(
     app_pkgs = {b for b in project.int_deps.apps}
     lib_pkgs = {c for c in project.int_deps.libs}
     int_dep_diff = imports_diff(int_dep_imports, app_pkgs, lib_pkgs)
-
-    root = config.get_workspace_root()
-    style = config.get_style(root)
-    include_libs = style == Style.modules
-    ext_dep_diff = external_deps.calculate_diff(ext_dep_imports, third_party_libs, include_libs)
-
+    ext_dep_diff = external_deps.calculate_diff(ext_dep_imports, third_party_libs)
     return CheckReport(
         int_dep_imports=int_dep_imports,
         ext_dep_imports=ext_dep_imports,

@@ -30,9 +30,7 @@ nav:
     - Install: install.md
     - Usage: usage.md
     - Build: build.md
-  - Styles:
-    - Packages: style-packages.md
-    - Modules: style-modules.md
+    - Packages: packages.md
   - Integration:
     - Types and tests: types-tests.md
   - Community:

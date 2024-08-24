@@ -3,9 +3,9 @@ from pathlib import Path
 
 from rich.console import Console
 
-from una import check, config, defaults, files, internal_deps
+from una import check, defaults, files, internal_deps
 from una.config import load_conf
-from una.types import Conf, Diff, Include, Options, Proj, Style
+from una.types import Conf, Diff, Include, Options, Proj
 
 
 def sync_project_int_deps(root: Path, ns: str, project: Proj, options: Options):
@@ -60,9 +60,9 @@ def _print_summary(diff: Diff) -> None:
         console.print(f"adding [lib]{c}[/] lib to [proj]{name}[/]")
 
 
-def _to_package(ns: str, name: str, int_dep_root: str, style: Style) -> Include:
+def _to_package(ns: str, name: str, int_dep_root: str) -> Include:
     root = Path(int_dep_root)
-    src = root / ns / name if style == Style.modules else root / name / ns / name
+    src = root / name / ns / name
     dst = Path(ns) / name
     return Include(src=str(src), dst=str(dst))
 
@@ -74,12 +74,10 @@ def _generate_updated_project(conf: Conf, packages: list[Include]) -> str | None
 
 
 def _to_packages(ns: str, diff: Diff) -> list[Include]:
-    root = config.get_workspace_root()
-    style = config.get_style(root)
     apps_path = "../../apps"
     libs_path = "../../libs"
-    a = [_to_package(ns, b, apps_path, style) for b in diff.apps]
-    b = [_to_package(ns, c, libs_path, style) for c in diff.libs]
+    a = [_to_package(ns, b, apps_path) for b in diff.apps]
+    b = [_to_package(ns, c, libs_path) for c in diff.libs]
     return a + b
 
 

@@ -1,6 +1,5 @@
 # Quickstart
 This will give you a quick view of how this all works.
-A `packages` style will be used by default, as it is probably more familiar to most.
 
 First install Rye:
 ```bash
@@ -72,9 +71,3 @@ And run it:
 docker build --tag unarepo-printer .
 docker run --rm -it unarepo-printer python -c 'from unarepo.printer import run; run()'
 ```
-
-## Example
-After running through the steps above, the result will be similar to the Projects style example repo:
-
-- [una-example-packages](https://github.com/carderne/una-example-packages)
-- [una-example-modules](https://github.com/carderne/una-example-modules)

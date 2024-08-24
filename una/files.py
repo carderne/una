@@ -3,26 +3,17 @@ from pathlib import Path
 import tomlkit
 
 from una import config, defaults
-from una.types import ConfWrapper, Include, Proj, Style
+from una.types import ConfWrapper, Include, Proj
 
 
-def create_workspace(path: Path, ns: str, style: Style) -> None:
+def create_workspace(path: Path, ns: str) -> None:
     app_content = defaults.EXAMPLE_APP_CODE.format(ns=ns, lib_name=defaults.EXAMPLE_LIB_NAME)
     lib_content = defaults.EXAMPLE_LIB_CODE
     dependencies = f'"{defaults.EXAMPLE_IMPORT}"'
 
-    _update_workspace_config(path, ns, style, defaults.EXAMPLE_IMPORT)
-    if style == Style.modules:
-        create_project(path, "example_project", dependencies, defaults.EXAMPLE_APP_NAME)
-
-    if style == Style.packages:
-        create_package(path, defaults.EXAMPLE_APP_NAME, defaults.apps_dir, app_content, "")
-        create_package(
-            path, defaults.EXAMPLE_LIB_NAME, defaults.libs_dir, lib_content, dependencies
-        )
-    else:
-        create_module(path, defaults.EXAMPLE_APP_NAME, defaults.apps_dir, app_content)
-        create_module(path, defaults.EXAMPLE_LIB_NAME, defaults.libs_dir, lib_content)
+    _update_workspace_config(path, ns, defaults.EXAMPLE_IMPORT)
+    create_package(path, defaults.EXAMPLE_APP_NAME, defaults.apps_dir, app_content, "")
+    create_package(path, defaults.EXAMPLE_LIB_NAME, defaults.libs_dir, lib_content, dependencies)
 
 
 def parse_package_paths(packages: list[Include]) -> list[Path]:
@@ -45,25 +36,6 @@ def get_projects(root: Path) -> list[Proj]:
     ]
 
 
-def create_project(path: Path, name: str, dependencies: str, from_app: str) -> None:
-    conf = config.load_conf(path)
-    python_version = conf.project.requires_python
-    ns = config.get_ns(path)
-
-    proj_dir = _create_dir(path, f"projects/{name}")
-    content = defaults.MODULE_STYLE_PYPROJ_TEMPLATE.format(
-        ns=ns, name=name, python_version=python_version, dependencies=dependencies
-    )
-    _create_file(
-        proj_dir,
-        defaults.PYPROJ_FILE,
-        content
-        + defaults.EXAMPLE_PROJECT_DEPS.format(
-            ns=ns, app_name=from_app, lib_name=defaults.EXAMPLE_LIB_NAME
-        ),
-    )
-
-
 def create_package(path: Path, name: str, top_dir: str, content: str, dependencies: str) -> None:
     conf = config.load_conf(path)
     python_version = conf.project.requires_python
@@ -82,7 +54,7 @@ def create_package(path: Path, name: str, top_dir: str, content: str, dependenci
         f"test_{name}_import.py",
         content=defaults.EXAMPLE_TEST_CODE.format(ns=ns, name=name),
     )
-    pyproj_content = defaults.PACKAGE_STYLE_PYPROJ_TEMPLATE.format(
+    pyproj_content = defaults.PYPROJ_TEMPLATE.format(
         name=name, python_version=python_version, dependencies=dependencies
     )
     if is_app:
@@ -96,14 +68,6 @@ def create_package(path: Path, name: str, top_dir: str, content: str, dependenci
         defaults.PYPROJ_FILE,
         pyproj_content,
     )
-
-
-def create_module(path: Path, name: str, top_dir: str, content: str) -> None:
-    ns = config.get_ns(path)
-    code_dir = _create_dir(path, f"{top_dir}/{ns}/{name}")
-
-    _create_file(code_dir, "__init__.py", content)
-    _create_file(code_dir, f"test_{name}.py", defaults.EXAMPLE_TEST_CODE.format(ns=ns, name=name))
 
 
 def get_libs(root: Path, ns: str) -> list[str]:
@@ -145,8 +109,7 @@ def _is_int_dep_dir(p: Path) -> bool:
 
 
 def _get_libs_dirs(root: Path, top_dir: str, ns: str) -> list[Path]:
-    style = config.get_style(root)
-    sub = "" if style == Style.packages else ns
+    sub = ""
     lib_dir = root / top_dir / sub
     if not lib_dir.exists():
         return []
@@ -164,31 +127,18 @@ def _collect_paths(root: Path, ns: str, int_dep: str, packages: set[str]) -> set
     return {Path(root / p) for p in paths}
 
 
-def _update_workspace_config(path: Path, ns: str, style: Style, dependencies: str) -> None:
+def _update_workspace_config(path: Path, ns: str, dependencies: str) -> None:
     pyproj = path / defaults.PYPROJ_FILE
-    if style == Style.modules:
-        with pyproj.open() as f:
-            toml = tomlkit.parse(f.read())
-        toml["project"]["dependencies"].append(dependencies)  # type:ignore[reportIndexIssues]
-        toml["tool"]["rye"]["workspace"] = {"member": ["projects/*"]}  # type:ignore[reportIndexIssues]
-        toml["tool"]["hatch"]["build"].add("dev-mode-dirs", ["libs", "apps"])  # type:ignore[reportIndexIssues]
-        toml["tool"]["una"] = {"style": "modules"}  # type:ignore[reportIndexIssues]
-        with pyproj.open("w", encoding="utf-8") as f:
-            f.write(tomlkit.dumps(toml))  # type:ignore[reportUnknownMemberType]
-    else:
-        with pyproj.open() as f:
-            toml = tomlkit.parse(f.read())
-        toml["tool"]["rye"]["virtual"] = True  # type:ignore[reportIndexIssues]
-        toml["tool"]["rye"]["workspace"] = {"member": ["apps/*", "libs/*"]}  # type:ignore[reportIndexIssues]
-        toml["tool"]["una"] = {"style": "packages"}  # type:ignore[reportIndexIssues]
-        with pyproj.open("w") as f:
-            f.write(tomlkit.dumps(toml))  # type:ignore[reportUnknownMemberType]
+    with pyproj.open() as f:
+        toml = tomlkit.parse(f.read())
+    toml["tool"]["rye"]["virtual"] = True  # type:ignore[reportIndexIssues]
+    toml["tool"]["rye"]["workspace"] = {"member": ["apps/*", "libs/*"]}  # type:ignore[reportIndexIssues]
+    with pyproj.open("w") as f:
+        f.write(tomlkit.dumps(toml))  # type:ignore[reportUnknownMemberType]
 
 
 def _get_project_roots(root: Path) -> list[Path]:
-    ws_root = config.get_workspace_root()
-    style = config.get_style(ws_root)
-    prefix = "projects" if style == Style.modules else "apps"
+    prefix = "apps"
     return sorted(root.glob(f"{prefix}/*/"))
 
 

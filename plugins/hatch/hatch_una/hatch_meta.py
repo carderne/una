@@ -10,9 +10,6 @@ from hatch_una import util
 class UnaMetaHook(MetadataHookInterface):
     """
     Inject needed third-party dependencies into project.dependencies.
-
-    This hook is only needed for Packages style una workspaces.
-    Modules style should have all dependencies specified in pyproject.toml.
     """
 
     PLUGIN_NAME = "una-meta"
@@ -24,11 +21,6 @@ class UnaMetaHook(MetadataHookInterface):
         path = Path(self.root)
         conf = util.load_conf(path)
         name: str = conf["project"]["name"]
-
-        root_path = path.parents[1]
-        style = util.get_workspace_style(root_path)
-        if style == "modules":
-            raise ValueError("Hook 'una-meta' should not be used with Modules style workspace")
 
         try:
             int_deps: dict[str, str] = conf["tool"]["una"]["libs"]

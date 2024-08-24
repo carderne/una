@@ -9,7 +9,7 @@ from rich.padding import Padding
 from rich.table import Table
 
 from una import config, defaults, distributions, files, parse, stdlib
-from una.types import Imports, Options, OrgImports, Proj, Style
+from una.types import Imports, Options, OrgImports, Proj
 
 
 def external_deps_from_all(
@@ -25,10 +25,10 @@ def external_deps_from_all(
     return {_missing_libs(p, imports, options) for p in projects}
 
 
-def calculate_diff(imports: OrgImports, deps: set[str], include_libs: bool) -> set[str]:
+def calculate_diff(imports: OrgImports, deps: set[str]) -> set[str]:
     apps_imports = _flatten(imports.apps)
-    # workspace style doesn't require libs imports to be declared in the app deps
-    libs_imports: set[str] = _flatten(imports.libs) if include_libs else set()
+    # don't require libs imports to be declared in the app deps
+    libs_imports: set[str] = set()
     flat: set[str] = set().union(apps_imports, libs_imports)
     unknown_imports = flat.difference(deps)
     cutoff = 0.6
@@ -132,10 +132,7 @@ def _print_missing_installed_libs(
     third_party_libs: set[str],
     project_name: str,
 ) -> bool:
-    root = config.get_workspace_root()
-    style = config.get_style(root)
-    include_libs = style == Style.modules
-    diff = calculate_diff(int_dep_imports, third_party_libs, include_libs)
+    diff = calculate_diff(int_dep_imports, third_party_libs)
     if not diff:
         return True
     console = Console(theme=defaults.RICH_THEME)

@@ -30,19 +30,9 @@ class UnaBuildHook(BuildHookInterface[BuilderConfig]):
                 f"App/project '{name}' is missing '[tool.una.libs]' in pyproject.toml"
             ) from e
 
-        # need to determine workspace style (packages or modules)
-        # as packages style needs dependencies' pyproject.tomls to be included
-        # so that they're available in src -> sdist -> wheel builds
-        root_path = path.parents[1]
-        style = util.get_workspace_style(root_path)
-
         if not int_deps:
-            if style == "packages":
-                # this is fine, the app doesn't import anything internally
-                return
-            else:
-                # this is an empty project, useless and accidental
-                raise ValueError(f"Project '{name}' has no dependencies")
+            # this is fine, the app doesn't import anything internally
+            return
 
         # make sure all int_deps exist
         found = [Path(k) for k in int_deps if (path / k).exists()]
@@ -51,25 +41,14 @@ class UnaBuildHook(BuildHookInterface[BuilderConfig]):
             missing_str = ", ".join(missing)
             raise ValueError(f"Could not find these paths: {missing_str}")
 
-        # need to add the root workspace pyproject.toml so that in src -> sdist -> wheel builds,
-        # we can still determine the style (for packages style)
-        add_root_pyproj = {
-            str(root_path / util.PYPROJ): str(
-                util.EXTRA_PYPROJ / util.ROOT_PYPROJ_SUBDIR / util.PYPROJ
-            )
+        add_packages_pyproj = {
+            str(f.parents[1] / util.PYPROJ): str(util.EXTRA_PYPROJ / f.name / util.PYPROJ)
+            for f in found
         }
-        if style == "packages":
-            add_packages_pyproj = {
-                str(f.parents[1] / util.PYPROJ): str(util.EXTRA_PYPROJ / f.name / util.PYPROJ)
-                for f in found
-            }
-        else:
-            add_packages_pyproj = {}
 
         build_data["force_include"] = {
             **build_data["force_include"],
             **int_deps,
-            **add_root_pyproj,
             **add_packages_pyproj,
         }
 

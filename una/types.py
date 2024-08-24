@@ -1,7 +1,6 @@
 from collections.abc import Callable
 from copy import deepcopy
 from dataclasses import dataclass, field
-from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, TypeAlias, TypeVar
 
@@ -68,11 +67,6 @@ class Project:
     requires_python: str = ">= 3.8"
 
 
-class Style(Enum):
-    packages = "packages"
-    modules = "modules"
-
-
 def _default_members() -> list[str]:
     return ["libs/*", "apps/*"]
 
@@ -80,7 +74,6 @@ def _default_members() -> list[str]:
 @dataclass_json
 @dataclass(frozen=True)
 class Una:
-    style: Style = Style.packages
     members: list[str] = field(default_factory=_default_members)
     deps: dict[str, str] = field(default_factory=dict)
 
