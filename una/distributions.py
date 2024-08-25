@@ -9,7 +9,7 @@ from una.types import ExtDeps
 SUB_DEP_SEPARATORS = r"[\s!=;><\^~]"
 
 
-def known_aliases_and_sub_dependencies(deps: ExtDeps, library_alias: list[str]) -> set[str]:
+def collect_deps(deps: ExtDeps, library_alias: list[str]) -> set[str]:
     """
     Collect known aliases (packages) for third-party libraries.
 
@@ -40,7 +40,7 @@ def _extract_extras(name: str) -> set[str]:
 
 
 def _extract_library_names(deps: ExtDeps) -> set[str]:
-    names = {k for k in deps.items}
+    names = {k.name for k in deps.items}
     with_extras = [_extract_extras(n) for n in names]
     res: set[str] = set().union(*with_extras)
     return res

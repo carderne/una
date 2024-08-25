@@ -5,7 +5,7 @@ from rich.console import Console
 from typer import Argument, Exit, Option, Typer
 
 from una import check, config, defaults, files, package_deps, sync
-from una.types import Options
+from una.types import CheckDiff
 
 app = Typer(name="una", no_args_is_help=True, add_completion=False)
 create = Typer(no_args_is_help=True)
@@ -27,26 +27,24 @@ def sync_command(
     """Update pyproject.toml with missing int_deps."""
     root = config.get_workspace_root()
     ns = config.get_ns(root)
-    options = Options(
-        quiet=quiet,
-        alias=str.split(alias, ",") if alias else [],
-    )
+    alias_list = alias.split(",") if alias else []
 
-    if not check_only:
-        projects = package_deps.get_projects_data(root, ns)
-        filtered_projects = package_deps.filtered_projects_data(projects)
-        enriched_projects = check.enriched_with_lock_files_data(filtered_projects)
-        for p in filtered_projects:
-            sync.sync_project_int_deps(root, ns, p, options)
-            config.clear_conf_cache()
+    packages = package_deps.get_packages(root, ns)
+    diffs: list[CheckDiff] = []
+    for p in packages:
+        diff = check.check_package_deps(root, ns, p, alias_list)
+        diffs.append(diff)
 
-    # reload projects so any changes made by sync are picked up
-    projects = package_deps.get_projects_data(root, ns)
-    filtered_projects = package_deps.filtered_projects_data(projects)
-    enriched_projects = check.enriched_with_lock_files_data(filtered_projects)
-    results = {check.check_int_ext_deps(root, ns, p, options) for p in enriched_projects}
-    if not all(results):
-        raise Exit(code=1)
+    if check_only:
+        failed = any(d.int_dep_diff or d.ext_dep_diff for d in diffs)
+        if failed:
+            for d in diffs:
+                check.print_check_results(d)
+            raise Exit(code=1)
+
+    else:
+        for d in diffs:
+            sync.sync_package_int_deps(d, ns, quiet)
 
 
 @create.command("package")

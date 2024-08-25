@@ -3,7 +3,6 @@ from pathlib import Path
 import tomlkit
 
 from una import config, defaults
-from una.types import ConfWrapper, Proj
 
 
 def create_workspace(path: Path, ns: str) -> None:
@@ -28,22 +27,6 @@ def create_workspace(path: Path, ns: str) -> None:
         dependencies,
         "",
     )
-
-
-def get_projects(root: Path) -> list[Proj]:
-    root_conf = config.load_conf(root)
-    ns = root_conf.project.name
-    members = root_conf.tool.una.members
-    confs = _get_toml_files(root, members)
-    return [
-        Proj(
-            name=c.conf.project.name,
-            packages=config.get_project_package_includes(ns, c.conf),
-            path=c.path,
-            ext_deps=config.get_project_dependencies(c.conf),
-        )
-        for c in confs
-    ]
 
 
 def create_package(
@@ -84,12 +67,14 @@ def create_package(
     )
 
 
-def get_libs(root: Path, ns: str) -> list[str]:
-    return _get_libs_names(root, ns, top_dir=defaults.libs_dir)
-
-
 def collect_libs_paths(root: Path, ns: str, libs: set[str]) -> set[Path]:
     return _collect_paths(root, ns, defaults.libs_dir, libs)
+
+
+def _collect_paths(root: Path, ns: str, int_dep: str, packages: set[str]) -> set[Path]:
+    p_template = config.get_int_dep_structure(root)
+    paths = {p_template.format(int_dep=int_dep, ns=ns, package=p) for p in packages}
+    return {Path(root / p) for p in paths}
 
 
 def _create_file(path: Path, name: str, content: str | None = None) -> Path:
@@ -110,29 +95,6 @@ def _create_dir(path: Path, dir_name: str, keep: bool = False) -> Path:
     return d
 
 
-def _is_int_dep_dir(p: Path) -> bool:
-    return p.is_dir() and p.name not in {"__pycache__", ".venv", ".mypy_cache"}
-
-
-def _get_libs_dirs(root: Path, top_dir: str, ns: str) -> list[Path]:
-    sub = ""
-    lib_dir = root / top_dir / sub
-    if not lib_dir.exists():
-        return []
-    return [f for f in lib_dir.iterdir() if _is_int_dep_dir(f)]
-
-
-def _get_libs_names(root: Path, ns: str, top_dir: str) -> list[str]:
-    dirs = _get_libs_dirs(root, top_dir, ns)
-    return [d.name for d in dirs]
-
-
-def _collect_paths(root: Path, ns: str, int_dep: str, packages: set[str]) -> set[Path]:
-    p_template = config.get_int_dep_structure(root)
-    paths = {p_template.format(int_dep=int_dep, ns=ns, package=p) for p in packages}
-    return {Path(root / p) for p in paths}
-
-
 def _update_workspace_config(path: Path, ns: str, dependencies: str) -> None:
     pyproj = path / defaults.PYPROJ_FILE
     with pyproj.open() as f:
@@ -141,11 +103,3 @@ def _update_workspace_config(path: Path, ns: str, dependencies: str) -> None:
     toml["tool"]["rye"]["workspace"] = {"member": ["apps/*", "libs/*"]}  # type:ignore[reportIndexIssues]
     with pyproj.open("w") as f:
         f.write(tomlkit.dumps(toml))  # type:ignore[reportUnknownMemberType]
-
-
-def _get_toml_files(root: Path, members: list[str]) -> list[ConfWrapper]:
-    projects: list[ConfWrapper] = []
-    for glob in members:
-        package_files = sorted(root.glob(glob))
-        projects.extend([ConfWrapper(conf=config.load_conf(p), path=p) for p in package_files])
-    return projects

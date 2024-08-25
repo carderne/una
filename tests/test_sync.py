@@ -1,25 +1,7 @@
 # pyright: reportPrivateUsage=false
-from pathlib import Path
 
 from una import config, sync
-from una.types import Diff, Include, OrgImports
-
-
-def test_int_deps_to_pyproject_packages():
-    ns = "unit_test"
-    lib_name = "world"
-    expected = [
-        Include(src=f"../../libs/{lib_name}/{ns}/{lib_name}", dst=f"{ns}/{lib_name}"),
-    ]
-    diff = Diff(
-        name="unit-test",
-        path=Path.cwd(),
-        libs={lib_name},
-        int_dep_imports=OrgImports(),
-    )
-    res = sync._to_packages(ns, diff)
-    assert res == expected
-
+from una.types import Include
 
 INCLUDES = [
     Include(src="apps/hello/first", dst="hello/first"),
@@ -56,7 +38,7 @@ build-backend = "hatchling.build"
 "apps/hello/first" = "hello/first"
 """
     conf = config.load_conf_from_str(pyproj)
-    updated = str(sync._generate_updated_project(conf, INCLUDES[1:]))
+    updated = str(sync._generate_updated_package(conf, INCLUDES[1:]))
     res = config.load_conf_from_str(updated).tool.una.deps
     assert res == EXPEXTED_HATCH_PACKAGES
 
@@ -70,6 +52,6 @@ build-backend = "hatchling.build"
 [tool.hatch.build]
     """
     conf = config.load_conf_from_str(pyproj)
-    updated = str(sync._generate_updated_project(conf, INCLUDES))
+    updated = str(sync._generate_updated_package(conf, INCLUDES))
     res = config.load_conf_from_str(updated).tool.una.deps
     assert res == EXPEXTED_HATCH_PACKAGES

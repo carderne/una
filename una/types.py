@@ -13,7 +13,7 @@ Imports: TypeAlias = dict[str, set[str]]
 
 @dataclass
 class OrgImports:
-    libs: Imports = field(default_factory=dict)
+    libs: Imports
 
 
 @dataclass
@@ -23,25 +23,37 @@ class Include:
 
 
 @dataclass(frozen=True)
-class CheckReport:
+class ExtDep:
+    name: str
+    version: str
+
+
+@dataclass(frozen=True)
+class ExtDeps:
+    source: str
+    items: list[ExtDep]
+
+
+@dataclass(frozen=True)
+class IntDeps:
+    libs: list[str]
+
+
+@dataclass(frozen=False)
+class PackageDeps:
+    name: str
+    path: Path
+    ext_deps: ExtDeps
+    int_deps: IntDeps
+
+
+@dataclass(frozen=True)
+class CheckDiff:
+    package: PackageDeps
     int_dep_imports: OrgImports
     ext_dep_imports: OrgImports
     int_dep_diff: set[str]
     ext_dep_diff: set[str]
-
-
-@dataclass(frozen=True)
-class Diff:
-    name: str
-    path: Path
-    libs: set[str]
-    int_dep_imports: OrgImports
-
-
-@dataclass
-class Options:
-    quiet: bool = False
-    alias: list[str] = field(default_factory=list)
 
 
 def _rename_keys(old: str, new: str) -> Callable[[Json], None]:
@@ -161,23 +173,3 @@ class Conf:
 class ConfWrapper:
     conf: Conf
     path: Path
-
-
-@dataclass(frozen=True)
-class ExtDeps:
-    source: str
-    items: dict[str, str]
-
-
-@dataclass(frozen=True)
-class IntDeps:
-    libs: list[str] = field(default_factory=list)
-
-
-@dataclass(frozen=False)
-class Proj:
-    name: str
-    packages: list[Include]
-    path: Path
-    ext_deps: ExtDeps
-    int_deps: IntDeps = field(default_factory=IntDeps)

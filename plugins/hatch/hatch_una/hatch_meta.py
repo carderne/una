@@ -52,7 +52,7 @@ class UnaMetaHook(MetadataHookInterface):
             try:
                 dep_deps: list[str] = dep_conf["project"]["dependencies"]
             except KeyError as e:
-                raise KeyError(f"No project.dependcies table for '{use_path}'")
+                raise KeyError(f"No project.dependencies table for '{use_path}'")
             dep_deps = [d.strip().replace(" ", "") for d in dep_deps]
             add_deps.extend(dep_deps)
 

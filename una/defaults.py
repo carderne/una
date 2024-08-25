@@ -10,7 +10,6 @@ RICH_THEME = Theme(
 )
 
 KEEP_FILE = ".keep"
-LOCK_FILE = "requirements.lock"
 ROOT_FILE = ".git"
 PYPROJ_FILE = "pyproject.toml"
 

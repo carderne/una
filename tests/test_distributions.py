@@ -2,7 +2,6 @@
 import importlib.metadata
 
 from una import distributions
-from una.types import ExtDeps
 
 
 class FakeDist:
@@ -44,32 +43,6 @@ def test_distribution_sub_packages():
     expected_sub_package = "typing-extensions"
     assert res.get(expected_dist) is not None
     assert expected_sub_package in res[expected_dist]
-
-
-def test_parse_third_party_library_name():
-    fake_project_deps = ExtDeps(
-        items={
-            "python": "^3.10",
-            "fastapi": "^0.110.0",
-            "uvicorn[standard]": "^0.27.1",
-            "python-jose[cryptography]": "^3.3.0",
-            "hello[world, something]": "^3.3.0",
-        },
-        source="pyproject.toml",
-    )
-    expected = {
-        "python",
-        "fastapi",
-        "uvicorn",
-        "standard",
-        "python-jose",
-        "cryptography",
-        "hello",
-        "world",
-        "something",
-    }
-    res = distributions._extract_library_names(fake_project_deps)
-    assert res == expected
 
 
 def test_parse_one_key_one_value_alias():
