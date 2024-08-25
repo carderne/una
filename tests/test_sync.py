@@ -7,16 +7,13 @@ from una.types import Diff, Include, OrgImports
 
 def test_int_deps_to_pyproject_packages():
     ns = "unit_test"
-    app_name = "hello"
     lib_name = "world"
     expected = [
-        Include(src=f"../../apps/{app_name}/{ns}/{app_name}", dst=f"{ns}/{app_name}"),
         Include(src=f"../../libs/{lib_name}/{ns}/{lib_name}", dst=f"{ns}/{lib_name}"),
     ]
     diff = Diff(
         name="unit-test",
         path=Path.cwd(),
-        apps={app_name},
         libs={lib_name},
         int_dep_imports=OrgImports(),
     )

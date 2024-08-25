@@ -17,10 +17,10 @@ def check_int_ext_deps(root: Path, ns: str, project: Proj, options: Options) -> 
         ext_dep_imports,
         collected_libs,
     )
-    num_apps = len(project.int_deps.apps)
-    res = all([num_apps == 1, not details.int_dep_diff, not details.ext_dep_diff])
+    num_libs = len(project.int_deps.libs)
+    res = all([num_libs == 1, not details.int_dep_diff, not details.ext_dep_diff])
     if not options.quiet:
-        _print_one_app(num_apps, name)
+        _print_one_lib(num_libs, name)
         _print_missing_deps(details.int_dep_diff, name)
         _print_missing_deps(details.ext_dep_diff, name)
         if options.verbose:
@@ -52,19 +52,15 @@ def with_unknown_libs(root: Path, ns: str, int_dep_imports: Imports) -> Imports:
     return with_unknown_libs(root, ns, collected)
 
 
-def imports_diff(int_dep_imports: OrgImports, apps: set[str], libs: set[str]) -> set[str]:
-    flattened_apps: set[str] = set().union(*int_dep_imports.apps.values())
+def imports_diff(int_dep_imports: OrgImports, libs: set[str]) -> set[str]:
     flattened_libs: set[str] = set().union(*int_dep_imports.libs.values())
-    flattened_imports: set[str] = set().union(flattened_apps, flattened_libs)
-    return _diff(flattened_imports, apps, libs)
+    return _diff(flattened_libs, libs)
 
 
 def print_int_dep_imports(int_dep_imports: OrgImports) -> None:
     console = Console(theme=defaults.RICH_THEME)
-    apps_imports = int_dep_imports.apps
     libs_imports = int_dep_imports.libs
-    int_deps = {**apps_imports, **libs_imports}
-    for key, values in int_deps.items():
+    for key, values in libs_imports.items():
         imports_in_int_dep = values.difference({key})
         if not imports_in_int_dep:
             continue
@@ -110,9 +106,8 @@ def _extract_int_dep_imports(all_imports: Imports, top_ns: str) -> Imports:
     return {k: _only_int_dep_name(v) for k, v in only_int.items() if v}
 
 
-def _diff(known_int_deps: set[str], apps: set[str], libs: set[str]) -> set[str]:
-    int_deps: set[str] = set().union(apps, libs)
-    return known_int_deps.difference(int_deps)
+def _diff(known_int_deps: set[str], libs: set[str]) -> set[str]:
+    return known_int_deps.difference(libs)
 
 
 def _fetch_int_dep_imports(root: Path, ns: str, all_imports: Imports) -> Imports:
@@ -121,11 +116,11 @@ def _fetch_int_dep_imports(root: Path, ns: str, all_imports: Imports) -> Imports
     return res
 
 
-def _print_one_app(num_apps: int, project_name: str) -> None:
-    if num_apps == 1:
+def _print_one_lib(num_libs: int, project_name: str) -> None:
+    if num_libs == 1:
         return
     console = Console(theme=defaults.RICH_THEME)
-    console.print(f"Projects must include exactly ONE app, but {project_name} has {num_apps}")
+    console.print(f"Projects must include exactly ONE app, but {project_name} has {num_libs}")
 
 
 def _print_missing_deps(diff: set[str], project_name: str) -> None:
@@ -137,18 +132,13 @@ def _print_missing_deps(diff: set[str], project_name: str) -> None:
 
 
 def _collect_all_imports(root: Path, ns: str, project: Proj) -> tuple[OrgImports, OrgImports]:
-    app_pkgs = {b for b in project.int_deps.apps}
     libs_pkgs = {c for c in project.int_deps.libs}
-    apps_paths = files.collect_apps_paths(root, ns, app_pkgs)
     libs_paths = files.collect_libs_paths(root, ns, libs_pkgs)
-    all_imports_in_apps = parse.fetch_all_imports(apps_paths)
     all_imports_in_libs = parse.fetch_all_imports(libs_paths)
     int_dep_imports = OrgImports(
-        apps=_fetch_int_dep_imports(root, ns, all_imports_in_apps),
         libs=_fetch_int_dep_imports(root, ns, all_imports_in_libs),
     )
     ext_dep_imports = OrgImports(
-        apps=external_deps.extract_ext_dep_imports(all_imports_in_apps, ns),
         libs=external_deps.extract_ext_dep_imports(all_imports_in_libs, ns),
     )
     return int_dep_imports, ext_dep_imports
@@ -160,9 +150,8 @@ def _create_report(
     ext_dep_imports: OrgImports,
     third_party_libs: set[str],
 ) -> CheckReport:
-    app_pkgs = {b for b in project.int_deps.apps}
     lib_pkgs = {c for c in project.int_deps.libs}
-    int_dep_diff = imports_diff(int_dep_imports, app_pkgs, lib_pkgs)
+    int_dep_diff = imports_diff(int_dep_imports, lib_pkgs)
     ext_dep_diff = external_deps.calculate_diff(ext_dep_imports, third_party_libs)
     return CheckReport(
         int_dep_imports=int_dep_imports,

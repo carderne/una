@@ -12,7 +12,7 @@ def create_workspace(path: Path, ns: str) -> None:
     dependencies = f'"{defaults.EXAMPLE_IMPORT}"'
 
     _update_workspace_config(path, ns, defaults.EXAMPLE_IMPORT)
-    create_package(path, defaults.EXAMPLE_APP_NAME, defaults.apps_dir, app_content, "")
+    create_package(path, defaults.EXAMPLE_APP_NAME, defaults.libs_dir, app_content, "")
     create_package(path, defaults.EXAMPLE_LIB_NAME, defaults.libs_dir, lib_content, dependencies)
 
 
@@ -48,7 +48,7 @@ def create_package(path: Path, name: str, top_dir: str, content: str, dependenci
 
     _create_file(code_dir, "__init__.py", content)
     _create_file(code_dir, "py.typed")
-    is_app = top_dir == defaults.apps_dir  # TODO fix this hack
+    is_app = False  # TODO
     _create_file(
         test_dir,
         f"test_{name}_import.py",
@@ -71,15 +71,7 @@ def create_package(path: Path, name: str, top_dir: str, content: str, dependenci
 
 
 def get_libs(root: Path, ns: str) -> list[str]:
-    return _get_apps_libs_names(root, ns, top_dir=defaults.libs_dir)
-
-
-def get_apps(root: Path, ns: str) -> list[str]:
-    return _get_apps_libs_names(root, ns, defaults.apps_dir)
-
-
-def collect_apps_paths(root: Path, ns: str, libs: set[str]) -> set[Path]:
-    return _collect_paths(root, ns, defaults.apps_dir, libs)
+    return _get_libs_names(root, ns, top_dir=defaults.libs_dir)
 
 
 def collect_libs_paths(root: Path, ns: str, libs: set[str]) -> set[Path]:
@@ -116,7 +108,7 @@ def _get_libs_dirs(root: Path, top_dir: str, ns: str) -> list[Path]:
     return [f for f in lib_dir.iterdir() if _is_int_dep_dir(f)]
 
 
-def _get_apps_libs_names(root: Path, ns: str, top_dir: str) -> list[str]:
+def _get_libs_names(root: Path, ns: str, top_dir: str) -> list[str]:
     dirs = _get_libs_dirs(root, top_dir, ns)
     return [d.name for d in dirs]
 

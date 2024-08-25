@@ -4,7 +4,6 @@ from una.types import OrgImports
 
 def test_calculate_diff_reports_no_diff():
     int_dep_imports = OrgImports(
-        apps={"my_app": {"rich"}},
         libs={
             "one": {"rich"},
             "two": {"rich", "foo"},
@@ -23,7 +22,6 @@ def test_calculate_diff_reports_no_diff():
 
 def test_calculate_diff_should_identify_close_match():
     int_dep_imports = OrgImports(
-        apps={"my_app": {"foo"}},
         libs={
             "one": {"tomlkit"},
             "two": {"tomlkit", "aws_lambda_powertools", "rich"},
@@ -43,7 +41,6 @@ def test_calculate_diff_should_identify_close_match():
 
 def test_calculate_diff_should_identify_close_match_case_insensitive():
     int_dep_imports = OrgImports(
-        apps={"my_app": set()},
         libs={"one": {"PIL"}},
     )
     third_party_libs = {"pillow"}

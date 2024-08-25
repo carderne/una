@@ -13,7 +13,6 @@ Imports: TypeAlias = dict[str, set[str]]
 
 @dataclass
 class OrgImports:
-    apps: Imports = field(default_factory=dict)
     libs: Imports = field(default_factory=dict)
 
 
@@ -35,7 +34,6 @@ class CheckReport:
 class Diff:
     name: str
     path: Path
-    apps: set[str]
     libs: set[str]
     int_dep_imports: OrgImports
 
@@ -175,7 +173,6 @@ class ExtDeps:
 @dataclass(frozen=True)
 class IntDeps:
     libs: list[str] = field(default_factory=list)
-    apps: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=False)

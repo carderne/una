@@ -9,9 +9,8 @@ from una.types import Conf, Diff, Include, Options, Proj
 
 
 def sync_project_int_deps(root: Path, ns: str, project: Proj, options: Options):
-    apps_pkgs = files.get_apps(root, ns)
     libs_pkgs = files.get_libs(root, ns)
-    diff = _calculate_diff(root, ns, project, apps_pkgs, libs_pkgs)
+    diff = _calculate_diff(root, ns, project, libs_pkgs)
     _update_project(ns, diff)
     if options.quiet:
         return
@@ -24,21 +23,16 @@ def _calculate_diff(
     root: Path,
     ns: str,
     project: Proj,
-    apps_pkgs: Sequence[str],
     libs_pkgs: Sequence[str],
 ) -> Diff:
-    proj_apps = set(project.int_deps.apps)
     proj_libs = set(project.int_deps.libs)
-    all_apps = set(apps_pkgs)
     all_libs = set(libs_pkgs)
-    int_dep_imports = internal_deps.get_int_dep_imports(root, ns, proj_apps, proj_libs)
-    int_dep_diff = check.imports_diff(int_dep_imports, proj_apps, proj_libs)
-    apps_diff = {b for b in int_dep_diff if b in all_apps}
+    int_dep_imports = internal_deps.get_int_dep_imports(root, ns, proj_libs)
+    int_dep_diff = check.imports_diff(int_dep_imports, proj_libs)
     libs_diff = {b for b in int_dep_diff if b in all_libs}
     return Diff(
         name=project.name,
         path=project.path,
-        apps=apps_diff,
         libs=libs_diff,
         int_dep_imports=int_dep_imports,
     )
@@ -52,10 +46,7 @@ def _print_int_dep_imports(diff: Diff) -> None:
 def _print_summary(diff: Diff) -> None:
     console = Console(theme=defaults.RICH_THEME)
     name = diff.name
-    apps_pkgs = diff.apps
     libs_pkgs = diff.libs
-    for b in apps_pkgs:
-        console.print(f"adding [app]{b}[/] app to [proj]{name}[/]")
     for c in libs_pkgs:
         console.print(f"adding [lib]{c}[/] lib to [proj]{name}[/]")
 
@@ -74,11 +65,8 @@ def _generate_updated_project(conf: Conf, packages: list[Include]) -> str | None
 
 
 def _to_packages(ns: str, diff: Diff) -> list[Include]:
-    apps_path = "../../apps"
     libs_path = "../../libs"
-    a = [_to_package(ns, b, apps_path) for b in diff.apps]
-    b = [_to_package(ns, c, libs_path) for c in diff.libs]
-    return a + b
+    return [_to_package(ns, c, libs_path) for c in diff.libs]
 
 
 def _rewrite_project_file(path: Path, packages: list[Include]):

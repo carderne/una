@@ -4,7 +4,7 @@ from typing import Annotated
 from rich.console import Console
 from typer import Argument, Exit, Option, Typer
 
-from una import check, config, defaults, external_deps, files, internal_deps, sync
+from una import check, config, defaults, files, internal_deps, sync
 from una.types import Options
 
 app = Typer(name="una", no_args_is_help=True, add_completion=False)
@@ -12,35 +12,12 @@ create = Typer(no_args_is_help=True)
 app.add_typer(
     create,
     name="create",
-    help="Commands for creating a workspace, apps, libs and projects.",
+    help="Commands for creating a workspace and libs.",
 )
 
 option_alias = Option(help="alias for third-party libraries, map install to import name")  # type: ignore[reportAny]
 option_verbose = Option(help="More verbose output.")  # type: ignore[reportAny]
 option_quiet = Option(help="Do not output any messages.")  # type: ignore[reportAny]
-
-
-@app.command("info")
-def info_command(
-    alias: Annotated[str, option_alias] = "",
-):
-    """Info about the Una workspace."""
-    root = config.get_workspace_root()
-    ns = config.get_ns(root)
-    options = Options(alias=str.split(alias, ",") if alias else [])
-
-    internal_deps.int_deps_from_projects(root, ns)
-
-    internal_deps.int_cross_deps(root, ns)
-
-    # Deps on external libraries
-    projects = internal_deps.get_projects_data(root, ns)
-    filtered_projects = internal_deps.filtered_projects_data(projects)
-    merged_projects_data = check.enriched_with_lock_files_data(filtered_projects, False)
-    results = external_deps.external_deps_from_all(root, ns, merged_projects_data, options)
-    external_deps.print_libs_in_projects(filtered_projects, options)
-    if not all(results):
-        raise Exit(code=1)
 
 
 @app.command("sync")
@@ -86,18 +63,6 @@ def lib_command(
     console = Console(theme=defaults.RICH_THEME)
     console.print("Success!")
     console.print(f"Created lib {name}")
-
-
-@create.command("app")
-def app_command(
-    name: Annotated[str, Argument(help="Name of the app.")],
-):
-    """Creates an Una app."""
-    root = config.get_workspace_root()
-    files.create_package(root, defaults.EXAMPLE_APP_NAME, defaults.apps_dir, "", "")
-    console = Console(theme=defaults.RICH_THEME)
-    console.print("Success!")
-    console.print(f"Created app {name}")
 
 
 @create.command("workspace")

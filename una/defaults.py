@@ -15,7 +15,6 @@ ROOT_FILE = ".git"
 PYPROJ_FILE = "pyproject.toml"
 
 libs_dir = "libs"
-apps_dir = "apps"
 
 EXAMPLE_APP_NAME = "printer"
 EXAMPLE_LIB_NAME = "greeter"
