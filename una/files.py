@@ -8,13 +8,12 @@ from una import config, defaults
 def create_workspace(path: Path, ns: str) -> None:
     app_content = defaults.EXAMPLE_APP_CODE.format(ns=ns, lib_name=defaults.EXAMPLE_LIB_NAME)
     lib_content = defaults.EXAMPLE_LIB_CODE
-    dependencies = f'"{defaults.EXAMPLE_IMPORT}"'
 
-    _update_workspace_config(path, ns, defaults.EXAMPLE_IMPORT)
+    _update_root_pyproj(path, ns, defaults.EXAMPLE_IMPORT)
     create_package(
         path,
         defaults.EXAMPLE_APP_NAME,
-        defaults.libs_dir,
+        "apps",
         app_content,
         "",
         defaults.EXAMPLE_INTERNAL_DEPS,
@@ -22,9 +21,9 @@ def create_workspace(path: Path, ns: str) -> None:
     create_package(
         path,
         defaults.EXAMPLE_LIB_NAME,
-        defaults.libs_dir,
+        "libs",
         lib_content,
-        dependencies,
+        f'"{defaults.EXAMPLE_IMPORT}"',
         "",
     )
 
@@ -46,7 +45,7 @@ def create_package(
     code_dir = _create_dir(path, f"{top_dir}/{name}/{ns}/{name}")
     test_dir = _create_dir(path, f"{top_dir}/{name}/tests")
 
-    _create_file(ns_dir, "py.typed")  # TODO is this necessary? basedpyright thinks so...
+    _create_file(ns_dir, "py.typed")
     _create_file(code_dir, "__init__.py", content)
     _create_file(code_dir, "py.typed")
     _create_file(
@@ -67,16 +66,6 @@ def create_package(
     )
 
 
-def collect_libs_paths(root: Path, ns: str, libs: set[str]) -> set[Path]:
-    return _collect_paths(root, ns, defaults.libs_dir, libs)
-
-
-def _collect_paths(root: Path, ns: str, int_dep: str, packages: set[str]) -> set[Path]:
-    p_template = config.get_int_dep_structure(root)
-    paths = {p_template.format(int_dep=int_dep, ns=ns, package=p) for p in packages}
-    return {Path(root / p) for p in paths}
-
-
 def _create_file(path: Path, name: str, content: str | None = None) -> Path:
     fullpath = path / name
     if content:
@@ -95,11 +84,13 @@ def _create_dir(path: Path, dir_name: str, keep: bool = False) -> Path:
     return d
 
 
-def _update_workspace_config(path: Path, ns: str, dependencies: str) -> None:
+def _update_root_pyproj(path: Path, ns: str, dependencies: str) -> None:
     pyproj = path / defaults.PYPROJ_FILE
     with pyproj.open() as f:
         toml = tomlkit.parse(f.read())
+
     toml["tool"]["rye"]["virtual"] = True  # type:ignore[reportIndexIssues]
-    toml["tool"]["rye"]["workspace"] = {"member": ["apps/*", "libs/*"]}  # type:ignore[reportIndexIssues]
+    toml["tool"]["rye"]["workspace"] = {"member": defaults.EXAMPLE_MEMBERS}  # type:ignore[reportIndexIssues]
+    toml["tool"]["una"] = {"members": defaults.EXAMPLE_MEMBERS}  # type:ignore[reportIndexIssues]
     with pyproj.open("w") as f:
         f.write(tomlkit.dumps(toml))  # type:ignore[reportUnknownMemberType]

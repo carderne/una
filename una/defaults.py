@@ -2,10 +2,9 @@ from rich.theme import Theme
 
 RICH_THEME = Theme(
     {
-        "data": "#999966",
-        "proj": "#8A2BE2",
-        "lib": "#32CD32",
-        "app": "#6495ED",
+        "dat": "#999966",
+        "pkg": "#8A2BE2",
+        "dep": "#32CD32",
     }
 )
 
@@ -13,11 +12,9 @@ KEEP_FILE = ".keep"
 ROOT_FILE = ".git"
 PYPROJ_FILE = "pyproject.toml"
 
-libs_dir = "libs"
-
 EXAMPLE_APP_NAME = "printer"
 EXAMPLE_LIB_NAME = "greeter"
-
+EXAMPLE_MEMBERS = ["apps/*", "libs/*"]
 EXAMPLE_IMPORT = "cowsay-python==1.0.2"
 
 TEMPLATE_PYPROJ = """\

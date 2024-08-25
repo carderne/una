@@ -29,8 +29,8 @@ def get_ns(path: Path) -> str:
     return sanitise_name(load_conf(path).project.name)
 
 
-def get_int_dep_structure(root: Path) -> str:
-    return "{int_dep}/{package}"
+def get_members(path: Path) -> list[str]:
+    return load_conf(path).tool.una.members
 
 
 def get_workspace_root() -> Path:

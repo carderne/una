@@ -12,11 +12,6 @@ Imports: TypeAlias = dict[str, set[str]]
 
 
 @dataclass
-class OrgImports:
-    libs: Imports
-
-
-@dataclass
 class Include:
     src: str
     dst: str
@@ -29,29 +24,24 @@ class ExtDep:
 
 
 @dataclass(frozen=True)
-class ExtDeps:
-    source: str
-    items: list[ExtDep]
-
-
-@dataclass(frozen=True)
-class IntDeps:
-    libs: list[str]
+class IntDep:
+    path: Path
+    name: str
 
 
 @dataclass(frozen=False)
 class PackageDeps:
     name: str
     path: Path
-    ext_deps: ExtDeps
-    int_deps: IntDeps
+    ext_deps: list[ExtDep]
+    int_deps: list[IntDep]
 
 
 @dataclass(frozen=True)
 class CheckDiff:
     package: PackageDeps
-    int_dep_imports: OrgImports
-    ext_dep_imports: OrgImports
+    int_dep_imports: Imports
+    ext_dep_imports: Imports
     int_dep_diff: set[str]
     ext_dep_diff: set[str]
 

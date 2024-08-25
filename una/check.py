@@ -3,18 +3,18 @@ from pathlib import Path
 
 from rich.console import Console
 
-from una import defaults, distributions, files, parse, stdlib
-from una.types import CheckDiff, Imports, OrgImports, PackageDeps
+from una import defaults, distributions, package_deps, parse, stdlib
+from una.types import CheckDiff, Imports, PackageDeps
 
 
 def check_package_deps(root: Path, ns: str, package: PackageDeps, alias: list[str]) -> CheckDiff:
     int_dep_imports, ext_dep_imports = _collect_all_imports(root, ns, package)
-    collected_libs = distributions.collect_deps(package.ext_deps, alias)
+    external_deps = distributions.collect_deps(package.ext_deps, alias)
     diff = _create_diff(
         package,
         int_dep_imports,
         ext_dep_imports,
-        collected_libs,
+        external_deps,
     )
     return diff
 
@@ -29,18 +29,19 @@ def _extract_int_deps(paths: set[Path], ns: str) -> Imports:
     return _extract_int_dep_imports(all_imports, ns)
 
 
-def _with_unknown_libs(root: Path, ns: str, int_dep_imports: Imports) -> Imports:
+def _with_unknown_deps(root: Path, ns: str, int_dep_imports: Imports) -> Imports:
     keys = set(int_dep_imports.keys())
     values: set[str] = set().union(*int_dep_imports.values())
     unknowns = values.difference(keys)
     if not unknowns:
         return int_dep_imports
-    paths = files.collect_libs_paths(root, ns, unknowns)
+    all_paths = [c.path for c in package_deps.get_package_confs(root)]
+    paths = {p for p in all_paths if p.name in unknowns}
     extracted = _extract_int_deps(paths, ns)
     if not extracted:
         return int_dep_imports
     collected = {**int_dep_imports, **extracted}
-    return _with_unknown_libs(root, ns, collected)
+    return _with_unknown_deps(root, ns, collected)
 
 
 def _only_int_dep_imports(imports: set[str], top_ns: str) -> set[str]:
@@ -59,7 +60,7 @@ def _extract_int_dep_imports(all_imports: Imports, top_ns: str) -> Imports:
 
 def _fetch_int_dep_imports(root: Path, ns: str, all_imports: Imports) -> Imports:
     extracted = _extract_int_dep_imports(all_imports, ns)
-    res = _with_unknown_libs(root, ns, extracted)
+    res = _with_unknown_deps(root, ns, extracted)
     return res
 
 
@@ -71,18 +72,13 @@ def _print_missing_deps(diff: set[str], package_name: str) -> None:
     console.print(f":thinking_face: Cannot locate {missing} in {package_name}")
 
 
-def _collect_all_imports(
-    root: Path, ns: str, package: PackageDeps
-) -> tuple[OrgImports, OrgImports]:
-    libs_pkgs = {c for c in package.int_deps.libs}
-    libs_paths = files.collect_libs_paths(root, ns, libs_pkgs)
-    all_imports_in_libs = parse.fetch_all_imports(libs_paths)
-    int_dep_imports = OrgImports(
-        libs=_fetch_int_dep_imports(root, ns, all_imports_in_libs),
-    )
-    ext_dep_imports = OrgImports(
-        libs=_extract_ext_dep_imports(all_imports_in_libs, ns),
-    )
+def _collect_all_imports(root: Path, ns: str, package: PackageDeps) -> tuple[Imports, Imports]:
+    dep_pkgs = {c for c in package.int_deps}
+    all_paths = [c.path for c in package_deps.get_package_confs(root)]
+    dep_paths = {p for p in all_paths if p.name in {d.name for d in dep_pkgs}}
+    all_imports_in_deps = parse.fetch_all_imports(dep_paths)
+    int_dep_imports = _fetch_int_dep_imports(root, ns, all_imports_in_deps)
+    ext_dep_imports = _extract_ext_dep_imports(all_imports_in_deps, ns)
     return int_dep_imports, ext_dep_imports
 
 
@@ -91,27 +87,21 @@ def _extract_top_ns_from_imports(imports: set[str]) -> set[str]:
 
 
 def _extract_ext_dep_imports(all_imports: Imports, top_ns: str) -> Imports:
-    std_libs = stdlib.get_stdlib()
     top_level_imports = {k: _extract_top_ns_from_imports(v) for k, v in all_imports.items()}
-    to_exclude = std_libs.union({top_ns})
+    to_exclude = stdlib.get_stdlib().union({top_ns})
     with_third_party = {k: v - to_exclude for k, v in top_level_imports.items()}
     return {k: v for k, v in with_third_party.items() if v}
 
 
-def _imports_diff(int_dep_imports: OrgImports, libs: set[str]) -> set[str]:
-    diff: set[str] = set().union(*int_dep_imports.libs.values()).difference(libs)
-    return diff
-
-
 def _create_diff(
     package: PackageDeps,
-    int_dep_imports: OrgImports,
-    ext_dep_imports: OrgImports,
-    third_party_libs: set[str],
+    int_dep_imports: Imports,
+    ext_dep_imports: Imports,
+    external_deps: set[str],
 ) -> CheckDiff:
-    lib_pkgs = {c for c in package.int_deps.libs}
-    int_dep_diff = _imports_diff(int_dep_imports, lib_pkgs)
-    ext_dep_diff = _ext_dep_diff(ext_dep_imports, third_party_libs)
+    int_deps = {c for c in package.int_deps}
+    int_dep_diff: set[str] = set().union(*int_dep_imports.values()).difference(int_deps)
+    ext_dep_diff = _ext_dep_diff(ext_dep_imports, external_deps)
     return CheckDiff(
         package=package,
         int_dep_imports=int_dep_imports,
@@ -121,9 +111,9 @@ def _create_diff(
     )
 
 
-def _ext_dep_diff(imports: OrgImports, deps: set[str]) -> set[str]:
-    libs_imports: set[str] = set().union(*imports.libs.values())
-    unknown_imports = libs_imports.difference(deps)
+def _ext_dep_diff(imports: Imports, deps: set[str]) -> set[str]:
+    deps_imports: set[str] = set().union(*imports.values())
+    unknown_imports = deps_imports.difference(deps)
     cutoff = 0.6
 
     unknowns = {str.lower(u) for u in unknown_imports}

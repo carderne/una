@@ -4,12 +4,12 @@ from functools import lru_cache, reduce
 from importlib.metadata import Distribution
 from typing import cast
 
-from una.types import ExtDeps
+from una.types import ExtDep
 
 SUB_DEP_SEPARATORS = r"[\s!=;><\^~]"
 
 
-def collect_deps(deps: ExtDeps, library_alias: list[str]) -> set[str]:
+def collect_deps(deps: list[ExtDep], library_alias: list[str]) -> set[str]:
     """
     Collect known aliases (packages) for third-party libraries.
 
@@ -17,12 +17,11 @@ def collect_deps(deps: ExtDeps, library_alias: list[str]) -> set[str]:
     collect sub-dependencies and distribution top-namespace for each library,
     and append to the result.
     """
-    lock_file = any(str.endswith(deps.source, s) for s in {".lock", ".txt"})
     third_party_libs = _extract_library_names(deps)
     dists = _get_distributions()
     dist_packages = _distributions_packages(dists)
     custom_aliases = _parse_alias(library_alias)
-    sub_deps = _distributions_sub_packages(dists) if not lock_file else {}
+    sub_deps = _distributions_sub_packages(dists)
     a = _pick_alias(dist_packages, third_party_libs)
     b = _pick_alias(custom_aliases, third_party_libs)
     c = _pick_alias(_KNOWN_ALIASES, third_party_libs)
@@ -39,8 +38,8 @@ def _extract_extras(name: str) -> set[str]:
     return {str.strip(p) for p in parts if p}
 
 
-def _extract_library_names(deps: ExtDeps) -> set[str]:
-    names = {k.name for k in deps.items}
+def _extract_library_names(deps: list[ExtDep]) -> set[str]:
+    names = {k.name for k in deps}
     with_extras = [_extract_extras(n) for n in names]
     res: set[str] = set().union(*with_extras)
     return res

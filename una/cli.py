@@ -12,7 +12,7 @@ create = Typer(no_args_is_help=True)
 app.add_typer(
     create,
     name="create",
-    help="Commands for creating a workspace and libs.",
+    help="Commands for creating workspace and packages.",
 )
 
 
@@ -52,7 +52,7 @@ def create_package_command(
     name: Annotated[str, Argument(help="Name of the package.")],
     path: Annotated[str, Argument(help="Where to place the package.")],
 ):
-    """Creates an Una lib."""
+    """Creates an Una package."""
     root = config.get_workspace_root()
     files.create_package(root, name, path, "", "", "")
     console = Console(theme=defaults.RICH_THEME)
