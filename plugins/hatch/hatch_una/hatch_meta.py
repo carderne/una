@@ -17,16 +17,16 @@ class UnaMetaHook(MetadataHookInterface):
     def update(self, metadata: dict[str, Any]) -> None:
         print("una: Injecting transitive external dependencies")
 
-        # load the config for this app/project
+        # load the config for this package
         path = Path(self.root)
         conf = util.load_conf(path)
         name: str = conf["project"]["name"]
 
         try:
-            int_deps: dict[str, str] = conf["tool"]["una"]["libs"]
+            int_deps: dict[str, str] = conf["tool"]["una"]["deps"]
         except KeyError as e:
             raise KeyError(
-                f"App/project '{name}' is missing '[tool.una.libs]' in pyproject.toml"
+                f"Package '{name}' is missing '[tool.una.deps]' in pyproject.toml"
             ) from e
 
         project_deps: list[str] = metadata.get("dependencies", [])

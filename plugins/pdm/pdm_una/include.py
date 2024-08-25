@@ -14,25 +14,23 @@ def force_include(context: Context) -> None:
 
     build_dir = context.build_dir
 
-    # load the config for this app/project
+    # load the config for this package
     path = Path(context.root)
     conf = util.load_conf(path)
     name: str = conf["project"]["name"]
 
     try:
-        int_deps: dict[str, str] = conf["tool"]["una"]["libs"]
+        int_deps: dict[str, str] = conf["tool"]["una"]["deps"]
     except KeyError as e:
-        raise KeyError(
-            f"App/project '{name}' is missing '[tool.una.libs]' in pyproject.toml"
-        ) from e
+        raise KeyError(f"Package '{name}' is missing '[tool.una.deps]' in pyproject.toml") from e
 
     via_sdist = True
     if via_sdist:
         # nothing to do as everything should already be included in sdist...
-        raise ValueError("FIX THIS")
+        raise ValueError("FIX THIS")  # TODO fix this
 
     if not int_deps:
-        # this is fine, the app doesn't import anything internally
+        # this is fine, the package doesn't import anything internally
         return
 
     # make sure all int_deps exist

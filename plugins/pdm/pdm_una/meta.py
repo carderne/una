@@ -17,11 +17,9 @@ def add_dependencies(context: Context):
     name: str = conf["project"]["name"]
 
     try:
-        int_deps: dict[str, str] = conf["tool"]["una"]["libs"]
+        int_deps: dict[str, str] = conf["tool"]["una"]["deps"]
     except KeyError as e:
-        raise KeyError(
-            f"App/project '{name}' is missing '[tool.una.libs]' in pyproject.toml"
-        ) from e
+        raise KeyError(f"Package '{name}' is missing '[tool.una.deps]' in pyproject.toml") from e
 
     project_deps: list[str] = metadata.get("dependencies", [])
     project_deps = [d.strip().replace(" ", "") for d in project_deps]

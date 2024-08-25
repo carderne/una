@@ -121,6 +121,5 @@ typing-inspect==0.9.0
     # via dataclasses-json
 urllib3==2.2.2
     # via requests
-vulture==2.11
 watchdog==4.0.2
     # via mkdocs
