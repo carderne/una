@@ -21,7 +21,7 @@ EXAMPLE_LIB_NAME = "greeter"
 
 EXAMPLE_IMPORT = "cowsay-python==1.0.2"
 
-PYPROJ_TEMPLATE = """\
+TEMPLATE_PYPROJ = """\
 [project]
 name = "{name}"
 version = "0.1.0"
@@ -46,9 +46,10 @@ dev-dependencies = []
 [tool.hatch.metadata.hooks.una-meta]
 
 [tool.una.deps]
+{internal_deps}
 """
 
-EXAMPLE_APP_DEPS = """\
+EXAMPLE_INTERNAL_DEPS = """\
 "../../libs/{lib_name}/{ns}/{lib_name}" = "{ns}/{lib_name}"
 """
 
@@ -68,7 +69,7 @@ def greet() -> str:
     return cowsay.say("Hello from una!")
 """
 
-EXAMPLE_TEST_CODE = """\
+TEMPLATE_TEST_CODE = """\
 from {ns} import {name}
 
 

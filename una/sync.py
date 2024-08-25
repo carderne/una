@@ -3,9 +3,9 @@ from pathlib import Path
 
 from rich.console import Console
 
-from una import check, defaults, files, internal_deps
+from una import check, defaults, files
 from una.config import load_conf
-from una.types import Conf, Diff, Include, Options, Proj
+from una.types import Conf, Diff, Include, Options, OrgImports, Proj
 
 
 def sync_project_int_deps(root: Path, ns: str, project: Proj, options: Options):
@@ -15,8 +15,7 @@ def sync_project_int_deps(root: Path, ns: str, project: Proj, options: Options):
     if options.quiet:
         return
     _print_summary(diff)
-    if options.verbose:
-        _print_int_dep_imports(diff)
+    _print_int_dep_imports(diff)
 
 
 def _calculate_diff(
@@ -27,7 +26,7 @@ def _calculate_diff(
 ) -> Diff:
     proj_libs = set(project.int_deps.libs)
     all_libs = set(libs_pkgs)
-    int_dep_imports = internal_deps.get_int_dep_imports(root, ns, proj_libs)
+    int_dep_imports = _get_int_dep_imports(root, ns, proj_libs)
     int_dep_diff = check.imports_diff(int_dep_imports, proj_libs)
     libs_diff = {b for b in int_dep_diff if b in all_libs}
     return Diff(
@@ -35,6 +34,14 @@ def _calculate_diff(
         path=project.path,
         libs=libs_diff,
         int_dep_imports=int_dep_imports,
+    )
+
+
+def _get_int_dep_imports(root: Path, ns: str, libs: set[str]) -> OrgImports:
+    comp_paths = files.collect_libs_paths(root, ns, libs)
+    int_dep_imports_in_libs = check.extract_int_deps(comp_paths, ns)
+    return OrgImports(
+        libs=check.with_unknown_libs(root, ns, int_dep_imports_in_libs),
     )
 
 

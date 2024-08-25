@@ -41,7 +41,6 @@ class Diff:
 @dataclass
 class Options:
     quiet: bool = False
-    verbose: bool = False
     alias: list[str] = field(default_factory=list)
 
 

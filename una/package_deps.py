@@ -1,15 +1,7 @@
 from pathlib import Path
 
-from una import check, files
-from una.types import Include, IntDeps, OrgImports, Proj
-
-
-def get_int_dep_imports(root: Path, ns: str, libs: set[str]) -> OrgImports:
-    comp_paths = files.collect_libs_paths(root, ns, libs)
-    int_dep_imports_in_libs = check.extract_int_deps(comp_paths, ns)
-    return OrgImports(
-        libs=check.with_unknown_libs(root, ns, int_dep_imports_in_libs),
-    )
+from una import files
+from una.types import Include, IntDeps, Proj
 
 
 def get_projects_data(root: Path, ns: str) -> list[Proj]:
@@ -33,7 +25,8 @@ def _get_project_int_deps(
     namespace: str,
     self_name: str,
 ) -> IntDeps:
-    paths = files.parse_package_paths(project_packages)
+    sorted_packages = sorted(project_packages, key=lambda p: p.src)
+    paths = [Path(p.src) for p in sorted_packages]
     libs_in_project = _get_matching_int_deps(paths, libs_paths, namespace)
     libs_in_project.append(self_name)
     return IntDeps(libs=libs_in_project)

@@ -1,9 +1,10 @@
+import difflib
 from copy import deepcopy
 from pathlib import Path
 
 from rich.console import Console
 
-from una import config, defaults, distributions, external_deps, files, lock_files, parse
+from una import config, defaults, distributions, files, lock_files, parse, stdlib
 from una.types import CheckReport, ExtDeps, Imports, Options, OrgImports, Proj
 
 
@@ -23,14 +24,11 @@ def check_int_ext_deps(root: Path, ns: str, project: Proj, options: Options) -> 
         _print_one_lib(num_libs, name)
         _print_missing_deps(details.int_dep_diff, name)
         _print_missing_deps(details.ext_dep_diff, name)
-        if options.verbose:
-            print_int_dep_imports(details.int_dep_imports)
-            print_int_dep_imports(details.ext_dep_imports)
     return res
 
 
-def enriched_with_lock_files_data(projects: list[Proj], is_verbose: bool) -> list[Proj]:
-    return [_enriched_with_lock_file_data(p, is_verbose) for p in projects]
+def enriched_with_lock_files_data(projects: list[Proj]) -> list[Proj]:
+    return [_enriched_with_lock_file_data(p) for p in projects]
 
 
 def extract_int_deps(paths: set[Path], ns: str) -> Imports:
@@ -79,12 +77,11 @@ def _with_ext_deps_from_lock_file(project: Proj) -> Proj:
     return project
 
 
-def _enriched_with_lock_file_data(project: Proj, is_verbose: bool) -> Proj:
+def _enriched_with_lock_file_data(project: Proj) -> Proj:
     try:
         return _with_ext_deps_from_lock_file(project)
     except ValueError as e:
-        if is_verbose:
-            print(f"{project.name}: {e}")
+        print(f"{project.name}: {e}")
         return project
 
 
@@ -139,9 +136,21 @@ def _collect_all_imports(root: Path, ns: str, project: Proj) -> tuple[OrgImports
         libs=_fetch_int_dep_imports(root, ns, all_imports_in_libs),
     )
     ext_dep_imports = OrgImports(
-        libs=external_deps.extract_ext_dep_imports(all_imports_in_libs, ns),
+        libs=_extract_ext_dep_imports(all_imports_in_libs, ns),
     )
     return int_dep_imports, ext_dep_imports
+
+
+def _extract_top_ns_from_imports(imports: set[str]) -> set[str]:
+    return {imp.split(".")[0] for imp in imports}
+
+
+def _extract_ext_dep_imports(all_imports: Imports, top_ns: str) -> Imports:
+    std_libs = stdlib.get_stdlib()
+    top_level_imports = {k: _extract_top_ns_from_imports(v) for k, v in all_imports.items()}
+    to_exclude = std_libs.union({top_ns})
+    with_third_party = {k: v - to_exclude for k, v in top_level_imports.items()}
+    return {k: v for k, v in with_third_party.items() if v}
 
 
 def _create_report(
@@ -152,10 +161,21 @@ def _create_report(
 ) -> CheckReport:
     lib_pkgs = {c for c in project.int_deps.libs}
     int_dep_diff = imports_diff(int_dep_imports, lib_pkgs)
-    ext_dep_diff = external_deps.calculate_diff(ext_dep_imports, third_party_libs)
+    ext_dep_diff = _calculate_diff(ext_dep_imports, third_party_libs)
     return CheckReport(
         int_dep_imports=int_dep_imports,
         ext_dep_imports=ext_dep_imports,
         int_dep_diff=int_dep_diff,
         ext_dep_diff=ext_dep_diff,
     )
+
+
+def _calculate_diff(imports: OrgImports, deps: set[str]) -> set[str]:
+    libs_imports: set[str] = set().union(*imports.libs.values())
+    unknown_imports = libs_imports.difference(deps)
+    cutoff = 0.6
+
+    unknowns = {str.lower(u) for u in unknown_imports}
+    deps_norm = {str.lower(d).replace("-", "_") for d in deps}
+    filtered = {u for u in unknowns if not difflib.get_close_matches(u, deps_norm, cutoff=cutoff)}
+    return filtered
