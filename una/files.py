@@ -42,7 +42,7 @@ _EXAMPLE_INTERNAL_DEPS = """\
 """
 
 _EXAMPLE_APP_CODE = """\
-import {ns}.{lib_name} as {lib_name}
+from {ns} import {lib_name}
 
 
 def run() -> None:

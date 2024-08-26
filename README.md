@@ -170,4 +170,4 @@ Then open a PR.
 
 ## License
 Una is distributed under the terms of the MIT license.
-Significant parts of the code are from the [python-polylith](https://github.com/DavidVujic/python-polylith) project (c) 2022 David Vujic
+Some code is from the [python-polylith](https://github.com/DavidVujic/python-polylith) project (c) 2022 David Vujic

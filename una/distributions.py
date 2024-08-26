@@ -1,3 +1,5 @@
+"""Code from https://github.com/DavidVujic/python-polylith"""
+
 import importlib.metadata
 import re
 from functools import lru_cache, reduce

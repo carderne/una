@@ -1,3 +1,5 @@
+"""Code from https://github.com/DavidVujic/python-polylith"""
+
 import difflib
 from pathlib import Path
 

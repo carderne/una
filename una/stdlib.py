@@ -1,4 +1,4 @@
-"""Borrowed from github.com/PyCQA/isort library. Thank you!"""
+"""From github.com/PyCQA/isort library."""
 
 import sys
 
