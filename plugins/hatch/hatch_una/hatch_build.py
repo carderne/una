@@ -34,6 +34,11 @@ class UnaBuildHook(BuildHookInterface[BuilderConfig]):
             # this is fine, the package doesn't import anything internally
             return
 
+        via_sdist = Path("PKG-INFO").exists()
+        if via_sdist:
+            # nothing to do as everything should already be included in sdist...
+            return
+
         # make sure all int_deps exist
         found = [Path(k) for k in int_deps if (path / k).exists()]
         missing = set(int_deps) - set(str(p) for p in found)

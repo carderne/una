@@ -24,13 +24,13 @@ def force_include(context: Context) -> None:
     except KeyError as e:
         raise KeyError(f"Package '{name}' is missing '[tool.una.deps]' in pyproject.toml") from e
 
-    via_sdist = True
-    if via_sdist:
-        # nothing to do as everything should already be included in sdist...
-        raise ValueError("FIX THIS")  # TODO fix this
-
     if not int_deps:
         # this is fine, the package doesn't import anything internally
+        return
+
+    via_sdist = Path("PKG-INFO").exists()
+    if via_sdist:
+        # nothing to do as everything should already be included in sdist...
         return
 
     # make sure all int_deps exist
