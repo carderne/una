@@ -1,9 +1,7 @@
 import difflib
 from pathlib import Path
 
-from rich.console import Console
-
-from una import defaults, distributions, package_deps, parse, stdlib
+from una import distributions, package_deps, parse, stdlib
 from una.types import CheckDiff, Imports, PackageDeps
 
 
@@ -17,11 +15,6 @@ def check_package_deps(root: Path, ns: str, package: PackageDeps, alias: list[st
         external_deps,
     )
     return diff
-
-
-def print_check_results(diff: CheckDiff) -> None:
-    _print_missing_deps(diff.int_dep_diff, diff.package.name)
-    _print_missing_deps(diff.ext_dep_diff, diff.package.name)
 
 
 def _extract_int_deps(paths: set[Path], ns: str) -> Imports:
@@ -62,14 +55,6 @@ def _fetch_int_dep_imports(root: Path, ns: str, all_imports: Imports) -> Imports
     extracted = _extract_int_dep_imports(all_imports, ns)
     res = _with_unknown_deps(root, ns, extracted)
     return res
-
-
-def _print_missing_deps(diff: set[str], package_name: str) -> None:
-    if not diff:
-        return
-    console = Console(theme=defaults.RICH_THEME)
-    missing = ", ".join(sorted(diff))
-    console.print(f":thinking_face: Cannot locate {missing} in {package_name}")
 
 
 def _collect_all_imports(root: Path, ns: str, package: PackageDeps) -> tuple[Imports, Imports]:

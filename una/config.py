@@ -1,7 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 
-from una import defaults
+from una import consts
 from una.types import Conf
 
 
@@ -17,7 +17,7 @@ def _load_conf(path: Path) -> Conf:
 
 
 def load_conf(path: Path) -> Conf:
-    fullpath = (path / defaults.PYPROJ_FILE).resolve()
+    fullpath = (path / consts.PYPROJ_FILE).resolve()
     return _load_conf(fullpath)
 
 
@@ -35,7 +35,7 @@ def get_members(path: Path) -> list[str]:
 
 def get_workspace_root() -> Path:
     cwd = Path.cwd()
-    root = _find_upwards_dir(cwd, defaults.ROOT_FILE)
+    root = _find_upwards_dir(cwd, consts.ROOT_FILE)
     if not root:
         raise ValueError("Didn't find the workspace root. Expected to find a .git directory.")
     return root
@@ -46,7 +46,7 @@ def _is_drive_root(cwd: Path) -> bool:
 
 
 def _is_repo_root(cwd: Path) -> bool:
-    fullpath = cwd / defaults.ROOT_FILE
+    fullpath = cwd / consts.ROOT_FILE
     return fullpath.exists()
 
 

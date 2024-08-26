@@ -2,28 +2,89 @@ from pathlib import Path
 
 import tomlkit
 
-from una import config, defaults
+from una import config, consts
+
+_EXAMPLE_APP_NAME = "printer"
+_EXAMPLE_LIB_NAME = "greeter"
+_EXAMPLE_MEMBERS = ["apps/*", "libs/*"]
+_EXAMPLE_IMPORT = "cowsay-python==1.0.2"
+
+_TEMPLATE_PYPROJ = """\
+[project]
+name = "{name}"
+version = "0.1.0"
+description = ""
+authors = []
+dependencies = [{dependencies}]
+requires-python = "{python_version}"
+dynamic = ["una"]  # needed for hatch-una metadata hook to work
+
+[build-system]
+requires = ["hatchling", "hatch-una"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.build.hooks.una-build]
+[tool.hatch.metadata.hooks.una-meta]
+
+[tool.una.deps]
+{internal_deps}
+"""
+
+_EXAMPLE_INTERNAL_DEPS = """\
+"../../libs/{dep_name}/{ns}/{dep_name}" = "{ns}/{dep_name}"
+"""
+
+_EXAMPLE_APP_CODE = """\
+import {ns}.{lib_name} as {lib_name}
+
+
+def run() -> None:
+    print({lib_name}.greet())
+"""
+
+_EXAMPLE_LIB_CODE = """\
+import cowsay
+
+
+def greet() -> str:
+    return cowsay.say("Hello from una!")
+"""
+
+_TEMPLATE_TEST_CODE = """\
+from {ns} import {name}
+
+
+def test_import():
+    assert {name}
+"""
 
 
 def create_workspace(path: Path, ns: str) -> None:
-    app_content = defaults.EXAMPLE_APP_CODE.format(ns=ns, lib_name=defaults.EXAMPLE_LIB_NAME)
-    lib_content = defaults.EXAMPLE_LIB_CODE
+    app_content = _EXAMPLE_APP_CODE.format(ns=ns, lib_name=_EXAMPLE_LIB_NAME)
+    lib_content = _EXAMPLE_LIB_CODE
 
-    _update_root_pyproj(path, ns, defaults.EXAMPLE_IMPORT)
+    _update_root_pyproj(path, ns, _EXAMPLE_IMPORT)
     create_package(
         path,
-        defaults.EXAMPLE_APP_NAME,
+        _EXAMPLE_APP_NAME,
         "apps",
         app_content,
         "",
-        defaults.EXAMPLE_INTERNAL_DEPS,
+        _EXAMPLE_INTERNAL_DEPS.format(ns=ns, dep_name=_EXAMPLE_LIB_NAME),
     )
     create_package(
         path,
-        defaults.EXAMPLE_LIB_NAME,
+        _EXAMPLE_LIB_NAME,
         "libs",
         lib_content,
-        f'"{defaults.EXAMPLE_IMPORT}"',
+        f'"{_EXAMPLE_IMPORT}"',
         "",
     )
 
@@ -51,9 +112,9 @@ def create_package(
     _create_file(
         test_dir,
         f"test_{name}_import.py",
-        content=defaults.TEMPLATE_TEST_CODE.format(ns=ns, name=name),
+        content=_TEMPLATE_TEST_CODE.format(ns=ns, name=name),
     )
-    pyproj_content = defaults.TEMPLATE_PYPROJ.format(
+    pyproj_content = _TEMPLATE_PYPROJ.format(
         name=name,
         python_version=python_version,
         dependencies=dependencies,
@@ -61,7 +122,7 @@ def create_package(
     )
     _create_file(
         package_dir,
-        defaults.PYPROJ_FILE,
+        consts.PYPROJ_FILE,
         pyproj_content,
     )
 
@@ -80,17 +141,17 @@ def _create_dir(path: Path, dir_name: str, keep: bool = False) -> Path:
     d = path / dir_name
     d.mkdir(parents=True)
     if keep:
-        _create_file(d, defaults.KEEP_FILE)
+        _create_file(d, consts.KEEP_FILE)
     return d
 
 
 def _update_root_pyproj(path: Path, ns: str, dependencies: str) -> None:
-    pyproj = path / defaults.PYPROJ_FILE
+    pyproj = path / consts.PYPROJ_FILE
     with pyproj.open() as f:
         toml = tomlkit.parse(f.read())
 
-    toml["tool"]["rye"]["virtual"] = True  # type:ignore[reportIndexIssues]
-    toml["tool"]["rye"]["workspace"] = {"member": defaults.EXAMPLE_MEMBERS}  # type:ignore[reportIndexIssues]
-    toml["tool"]["una"] = {"members": defaults.EXAMPLE_MEMBERS}  # type:ignore[reportIndexIssues]
+    toml["tool"]["rye"]["virtual"] = True  # pyright:ignore[reportIndexIssue]
+    toml["tool"]["rye"]["workspace"] = {"member": _EXAMPLE_MEMBERS}  # pyright:ignore[reportIndexIssue]
+    toml["tool"]["una"] = {"members": _EXAMPLE_MEMBERS}  # pyright:ignore[reportIndexIssue]
     with pyproj.open("w") as f:
-        f.write(tomlkit.dumps(toml))  # type:ignore[reportUnknownMemberType]
+        f.write(tomlkit.dumps(toml))  # pyright:ignore[reportUnknownMemberType]
