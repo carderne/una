@@ -6,15 +6,27 @@ from una.types import CheckDiff, Imports, PackageDeps
 
 
 def check_package_deps(root: Path, ns: str, package: PackageDeps, alias: list[str]) -> CheckDiff:
-    int_dep_imports, ext_dep_imports = _collect_all_imports(root, ns, package)
+    dep_pkgs = {c for c in package.int_deps}
+    all_paths = [c.path for c in package_deps.get_package_confs(root)]
+    dep_paths = {p for p in all_paths if p.name in {d.name for d in dep_pkgs}}
+
+    all_imports = parse.fetch_all_imports(dep_paths)
+    int_dep_imports = _get_int_dep_imports(all_imports, root, ns)
+    ext_dep_imports = _get_ext_dep_imports(all_imports, ns)
+    ext_dep_imports = {k: v for k, v in ext_dep_imports.items() if k == package.name}
+
     external_deps = distributions.collect_deps(package.ext_deps, alias)
-    diff = _create_diff(
-        package,
-        int_dep_imports,
-        ext_dep_imports,
-        external_deps,
+    int_deps = {c.name for c in package.int_deps}
+    int_dep_diff: set[str] = set().union(*int_dep_imports.values()).difference(int_deps)
+    ext_dep_diff = _ext_dep_diff(ext_dep_imports, external_deps)
+
+    return CheckDiff(
+        package=package,
+        int_dep_imports=int_dep_imports,
+        ext_dep_imports=ext_dep_imports,
+        int_dep_diff=int_dep_diff,
+        ext_dep_diff=ext_dep_diff,
     )
-    return diff
 
 
 def _extract_int_deps(paths: set[Path], ns: str) -> Imports:
@@ -37,8 +49,8 @@ def _with_unknown_deps(root: Path, ns: str, int_dep_imports: Imports) -> Imports
     return _with_unknown_deps(root, ns, collected)
 
 
-def _only_int_dep_imports(imports: set[str], top_ns: str) -> set[str]:
-    return {i for i in imports if i.startswith(top_ns)}
+def _only_int_dep_imports(imports: set[str], ns: str) -> set[str]:
+    return {i for i in imports if i.startswith(ns)}
 
 
 def _only_int_dep_name(int_dep_imports: set[str]) -> set[str]:
@@ -46,54 +58,26 @@ def _only_int_dep_name(int_dep_imports: set[str]) -> set[str]:
     return {i[1] for i in res if len(i) > 1}
 
 
-def _extract_int_dep_imports(all_imports: Imports, top_ns: str) -> Imports:
-    only_int = {k: _only_int_dep_imports(v, top_ns) for k, v in all_imports.items()}
+def _extract_int_dep_imports(all_imports: Imports, ns: str) -> Imports:
+    only_int = {k: _only_int_dep_imports(v, ns) for k, v in all_imports.items()}
     return {k: _only_int_dep_name(v) for k, v in only_int.items() if v}
 
 
-def _fetch_int_dep_imports(root: Path, ns: str, all_imports: Imports) -> Imports:
+def _get_int_dep_imports(all_imports: Imports, root: Path, ns: str) -> Imports:
     extracted = _extract_int_dep_imports(all_imports, ns)
     res = _with_unknown_deps(root, ns, extracted)
     return res
 
 
-def _collect_all_imports(root: Path, ns: str, package: PackageDeps) -> tuple[Imports, Imports]:
-    dep_pkgs = {c for c in package.int_deps}
-    all_paths = [c.path for c in package_deps.get_package_confs(root)]
-    dep_paths = {p for p in all_paths if p.name in {d.name for d in dep_pkgs}}
-    all_imports_in_deps = parse.fetch_all_imports(dep_paths)
-    int_dep_imports = _fetch_int_dep_imports(root, ns, all_imports_in_deps)
-    ext_dep_imports = _extract_ext_dep_imports(all_imports_in_deps, ns)
-    return int_dep_imports, ext_dep_imports
-
-
-def _extract_top_ns_from_imports(imports: set[str]) -> set[str]:
+def _extract_ns_from_imports(imports: set[str]) -> set[str]:
     return {imp.split(".")[0] for imp in imports}
 
 
-def _extract_ext_dep_imports(all_imports: Imports, top_ns: str) -> Imports:
-    top_level_imports = {k: _extract_top_ns_from_imports(v) for k, v in all_imports.items()}
-    to_exclude = stdlib.get_stdlib().union({top_ns})
+def _get_ext_dep_imports(all_imports: Imports, ns: str) -> Imports:
+    top_level_imports = {k: _extract_ns_from_imports(v) for k, v in all_imports.items()}
+    to_exclude = stdlib.get_stdlib().union({ns})
     with_third_party = {k: v - to_exclude for k, v in top_level_imports.items()}
     return {k: v for k, v in with_third_party.items() if v}
-
-
-def _create_diff(
-    package: PackageDeps,
-    int_dep_imports: Imports,
-    ext_dep_imports: Imports,
-    external_deps: set[str],
-) -> CheckDiff:
-    int_deps = {c for c in package.int_deps}
-    int_dep_diff: set[str] = set().union(*int_dep_imports.values()).difference(int_deps)
-    ext_dep_diff = _ext_dep_diff(ext_dep_imports, external_deps)
-    return CheckDiff(
-        package=package,
-        int_dep_imports=int_dep_imports,
-        ext_dep_imports=ext_dep_imports,
-        int_dep_diff=int_dep_diff,
-        ext_dep_diff=ext_dep_diff,
-    )
 
 
 def _ext_dep_diff(imports: Imports, deps: set[str]) -> set[str]:

@@ -51,12 +51,13 @@ def _get_package_int_deps(
     all_confs: list[ConfWrapper],
     namespace: str,
 ) -> list[IntDep]:
-    all_paths = [str(c.path) for c in all_confs]
     packages = [Include(src=k, dst=v) for k, v in conf.conf.tool.una.deps.items()]
-    sorted_packages = sorted(packages, key=lambda p: p.src)
-    paths = [Path(p.src) for p in sorted_packages]
-    paths_in_namespace = [p.name for p in paths if p.parent.name == namespace]
-    pkg_deps_paths = sorted(list(set(all_paths).intersection(paths_in_namespace)))
+    paths = [(conf.path / p.src).parents[1].resolve() for p in packages]
+
+    all_paths = {Path(c.path) for c in all_confs}
+    pkg_deps_paths = sorted(all_paths.intersection(paths))
     pkg_deps = [IntDep(path=Path(p), name=Path(p).name) for p in pkg_deps_paths]
+
+    # add self
     pkg_deps.append(IntDep(path=conf.path, name=conf.conf.project.name))
     return pkg_deps

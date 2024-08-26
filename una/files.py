@@ -34,7 +34,7 @@ dev-dependencies = []
 [tool.hatch.metadata.hooks.una-meta]
 
 [tool.una.deps]
-{internal_deps}
+{internal_deps}\
 """
 
 _EXAMPLE_INTERNAL_DEPS = """\
@@ -151,7 +151,7 @@ def _update_root_pyproj(path: Path, ns: str, dependencies: str) -> None:
         toml = tomlkit.parse(f.read())
 
     toml["tool"]["rye"]["virtual"] = True  # pyright:ignore[reportIndexIssue]
-    toml["tool"]["rye"]["workspace"] = {"member": _EXAMPLE_MEMBERS}  # pyright:ignore[reportIndexIssue]
+    toml["tool"]["rye"]["workspace"] = {"members": _EXAMPLE_MEMBERS}  # pyright:ignore[reportIndexIssue]
     toml["tool"]["una"] = {"members": _EXAMPLE_MEMBERS}  # pyright:ignore[reportIndexIssue]
     with pyproj.open("w") as f:
         f.write(tomlkit.dumps(toml))  # pyright:ignore[reportUnknownMemberType]

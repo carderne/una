@@ -18,13 +18,7 @@ app.add_typer(
 
 
 def rich_console() -> Console:
-    theme = Theme(
-        {
-            "dat": "#999966",
-            "pkg": "#8A2BE2",
-            "dep": "#32CD32",
-        }
-    )
+    theme = Theme({"pkg": "#8A2BE2", "dep": "#32CD32"})
     return Console(theme=theme)
 
 
@@ -36,7 +30,7 @@ def sync_command(
         str, Option(help="alias for third-party libraries, map install to import name")
     ] = "",
 ):
-    """Update pyproject.toml with missing int_deps."""
+    """Update packages with missing dependencies."""
     root = config.get_workspace_root()
     ns = config.get_ns(root)
     alias_list = alias.split(",") if alias else []
@@ -44,45 +38,31 @@ def sync_command(
     packages = package_deps.get_packages(root, ns)
     diffs: list[CheckDiff] = []
     for p in packages:
-        diff = check.check_package_deps(root, ns, p, alias_list)
-        diffs.append(diff)
+        d = check.check_package_deps(root, ns, p, alias_list)
+        diffs.append(d)
 
+    console = rich_console()
     if check_only:
-        failed = any(d.int_dep_diff or d.ext_dep_diff for d in diffs)
-        if failed:
-            for d in diffs:
-                console = rich_console()
-                missing_ext = ", ".join(sorted(d.ext_dep_diff))
-                missing_int = ", ".join(sorted(d.int_dep_diff))
-                console.print(f"Cannot locate {missing_ext} in {d.package.name}")
-                console.print(f"Cannot locate {missing_int} in {d.package.name}")
-            raise Exit(code=1)
-
-    else:
         for d in diffs:
-            sync.sync_package_int_deps(d, ns)
+            if d.ext_dep_diff:
+                missing = ", ".join(sorted(d.ext_dep_diff))
+                console.print(f"[pkg]{d.package.name}[/] can't find external: [dep]{missing}[/]")
+            if d.int_dep_diff:
+                missing = ", ".join(sorted(d.int_dep_diff))
+                console.print(f"[pkg]{d.package.name}[/] can't find internal: [dep]{missing}[/]")
 
-            if not quiet:
-                _print_summary(d)
-                _print_int_dep_imports(d)
+        if any(d.int_dep_diff or d.ext_dep_diff for d in diffs):
+            raise Exit(code=1)
+        raise Exit()
 
+    for d in diffs:
+        sync.sync_package(root, d, ns)
+        if not quiet:
+            for c in d.int_dep_diff:
+                console.print(f"[pkg]{d.package.name}[/] adding dep [dep]{c}[/]")
 
-def _print_int_dep_imports(diff: CheckDiff) -> None:
-    console = rich_console()
-    for key, values in diff.int_dep_imports.items():
-        imports_in_int_dep = values.difference({key})
-        if not imports_in_int_dep:
-            continue
-        joined = ", ".join(imports_in_int_dep)
-        message = f":information: [dat]{key}[/] is importing [dat]{joined}[/]"
-        console.print(message)
-
-
-def _print_summary(diff: CheckDiff) -> None:
-    console = rich_console()
-    name = diff.package.name
-    for c in diff.int_dep_diff:
-        console.print(f"adding dep [dep]{c}[/] to [pkg]{name}[/]")
+    if not quiet:
+        console.print("All good!")
 
 
 @create.command("package")
