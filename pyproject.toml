@@ -44,7 +44,7 @@ dev-dependencies = [
 ]
 
 [tool.uv.workspace]
-members = [".", "plugins/*"]
+members = ["plugins/*"]
 
 [build-system]
 requires = ["hatchling", "hatch-vcs"]

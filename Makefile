@@ -7,7 +7,10 @@ fmt-check:
 	@uv run ruff format --check
 
 lint:
-	@uv run ruff lint
+	@uv run ruff check --fix
+
+lint-check:
+	@uv run ruff check
 
 check:
 	@uv run basedpyright

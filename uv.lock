@@ -388,18 +388,14 @@ wheels = [
 
 [[package]]
 name = "pdm-una"
-version = "0.2.1.dev18+gb206798.d20240827"
+version = "0.2.1.dev21+gd9be7e8.d20240827"
 source = { editable = "plugins/pdm" }
-
-[package.dev-dependencies]
-dev = [
+dependencies = [
     { name = "pdm-backend" },
 ]
 
 [package.metadata]
-
-[package.metadata.requires-dev]
-dev = [{ name = "pdm-backend" }]
+requires-dist = [{ name = "pdm-backend" }]
 
 [[package]]
 name = "platformdirs"
