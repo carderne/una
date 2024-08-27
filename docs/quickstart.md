@@ -10,12 +10,14 @@ And start your workspace:
 ```bash
 uv init unarepo   # choose another name if you prefer
 cd unarepo
+git init
 uv add --dev una
 ```
 
 Then setup the Una workspace. This will generate a structure and an example lib and app.
 ```
 uv run una create workspace
+rm -rf src
 uv sync
 ```
 
@@ -35,7 +37,7 @@ printer --> greeter --> cowsay-python
 You can do this by running the following:
 ```bash
 # this checks all imports and ensures they are added to
-# [tool.una.deps] in the appropriate pyproject.toml
+# project.dependencies and tool.uv.sources in the each pyproject.toml
 uv run una sync
 ```
 
@@ -45,12 +47,12 @@ tail apps/printer/pyproject.toml
 ```
 
 It added `greeter` as an internal dependency to `printer`.
-It didn't add `cowsay-python`, as external dependencies are only resolved at build-time (keep reading).
+It didn't add `cowsay-python`, as transitive external dependencies are only resolved at build-time.
 
 Now you can build your app:
 ```bash
-uvx --from build pyproject-build --installer uv apps/printer
-# this will inject the cowsay-python externel dependency
+uvx --from build pyproject-build --installer=uv --outdir=dist apps/printer
+# this will inject the cowsay-python external dependency
 ```
 
 And see the result:

@@ -2,7 +2,7 @@
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/carderne/una/main/docs/assets/logo.svg" alt="Una logo" width="100" role="img">
-  <p>Easy monorepos with Python</p>
+  <p>Easy monorepos with Python and uv</p>
 </div>
 
 ----
@@ -20,11 +20,17 @@
 
 </div>
 
-Una is a tool to make Python monorepos with [uv](https://docs.astral.sh/uv/) easier.
-It is a CLI tool and a build plugin that does the following things:
+Una is a tool to build and productionise Python monorepos with [uv](https://docs.astral.sh/uv/).
 
-1. Enable builds of individual apps or projects within a monorepo.
-2. Ensure that internal and external dependencies are correctly specified.
+uv has [Workspaces](https://docs.astral.sh/uv/concepts/workspaces/), but no ability to _build_ them.
+This means if you have dependencies between packages in your workspace, there's no good way to distribute or productionise the end result.
+
+Una solves this.
+No additional configuration is needed: if you have a functional uv Workspace, just add Una.
+It consists of the following two things:
+
+1. A CLI to ensure that all imports are correctly specified as dependencies.
+2. A build plugin that enables production builds of individual apps within a monorepo by injecting local dependencies and transitive third-party dependencies.
 
 Una doesn't try to replicate a full build system such as [Bazel](https://bazel.build/) or
 [Pants](https://www.pantsbuild.org/).
@@ -33,12 +39,12 @@ It just makes it possible to have a simple monorepo with interdependencies.
 Una works much like a Rust workspace, with each package having its own pyproject.toml.
 In general, packages should either be libraries (imported but not run) or apps (run but never imported), but Una will not enforce this.
 
-It only works with [uv](https://docs.astral.sh/uv/) and with the [Hatch](https://hatch.pypa.io) build backend.
+It only works with the [Hatch](https://hatch.pypa.io) build backend.
 
 ## Examples
 You can see an example repo here:
 
-- [una-example](https://github.com/carderne/una-example-packages)
+- [una-example](https://github.com/carderne/una-example)
 
 ## Quickstart
 This will give you a quick view of how this all works.
@@ -79,7 +85,7 @@ printer --> greeter --> cowsay-python
 You can do this by running the following:
 ```bash
 # this checks all imports and ensures they are added to
-# [tool.una.deps] in the appropriate pyproject.toml
+# project.dependencies and tool.uv.sources in the each pyproject.toml
 uv run una sync
 ```
 
@@ -89,12 +95,12 @@ tail apps/printer/pyproject.toml
 ```
 
 It added `greeter` as an internal dependency to `printer`.
-It didn't add `cowsay-python`, as external dependencies are only resolved at build-time (keep reading).
+It didn't add `cowsay-python`, as transitive external dependencies are only resolved at build-time.
 
 Now you can build your app:
 ```bash
 uvx --from build pyproject-build --installer=uv --outdir=dist apps/printer
-# this will inject the cowsay-python externel dependency
+# this will inject the cowsay-python external dependency
 ```
 
 And see the result:

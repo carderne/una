@@ -1,13 +1,14 @@
 # Packages
 
 You can see an example of this here:
-- [una-example](https://github.com/carderne/una-example-packages)
 
-In this setup, we use uv's built-in workspace support (but you could also just create this structure some other way, YMMV). The structure will look something like this:
+- [una-example](https://github.com/carderne/una-example)
+
+The structure will look something like the below. This is completely up to you though! Whatever glob patterns you specify in uv's [Workspace](https://docs.astral.sh/uv/concepts/workspaces/) `members` table will be supported.
 ```bash
 .
 ├── pyproject.toml
-├── requirements.lock
+├── uv.lock
 ├── apps
 │   └── server
 │       ├── pyproject.toml
@@ -27,44 +28,44 @@ In this setup, we use uv's built-in workspace support (but you could also just c
             └── test_mylib.py
 ```
 
-This means:
-
-1. Each `app` or `lib` (collectively, internal dependencies) is it's own Python package with a `pyproject.toml`.
-2. You must specify the workspace members in `tool.uv.workspace.members`.
-3. Type-checking and testing should be done on a per-package level.
-That is, you should run `pyright` and `pytest` from `apps/server` or `libs/mylib`, _not_ from the root.
-
-In the example above, the only build artifact will be for `apps/server`. At build-time, Una will do the following:
+At build-time, Una will do the following:
 
 1. Read the list of internal dependencies (more on this shortly) and inject them into the build.
-2. Read all externel requirements of those dependencies, and add them to the dependency table.
+2. Read all external requirements of those dependencies, and add them to the dependency table.
 
-You can then use the Una CLI tool to ensure that all internal dependencies are kept in sync. What are the key steps?
+You can use the Una CLI tool to ensure that all internal dependencies are kept in sync.
 
 1. Use a uv workspace:
 ```toml
 # /pyproject.toml
 [tool.uv]
+dev-dependencies = []
 
 [tool.uv.workspace]
 members = ["apps/*", "libs/*"]
+# this could also be something like below
+# if you don't want to separate apps and libs
+# members = ["packages/*"]
 ```
 
-2. Create your apps and your libs as you would, ensuring that app code is never imported.
-Ensure that you choose a good namespace and always use it in your package structures (check `your_ns` in the example structure above.)
-3. Add external dependencies to your libs and apps as normal.
-Then, to add an internal dependency to an app, we do the following in its pyproject.toml:
+2. Create your packages as you like.
+3. Add external dependencies to your packages as normal.
+Then, to add an internal dependency to an app, we do the following in its pyproject.toml. This tells uv (and Una!) to find the `greeter` package locally in the workspace.
 
 ```toml
 # /apps/server/pyproject.toml
+[project]
+dependencies = ["greeter"]
+
+[tool.uv.sources]
+greeter = { workspace = true }
+
 [build-system]
 requires = ["hatchling", "hatch-una"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.hooks.una-build]
 [tool.hatch.build.hooks.una-meta]
-[tool.una.deps]
-"../../libs/mylib/example/mylib" = "example/mylib"
 ```
 
 4. Then you can build from that package directory and Una will inject everything that is needed:
