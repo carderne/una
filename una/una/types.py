@@ -72,14 +72,20 @@ def _default_members() -> list[str]:
 
 @dataclass_json
 @dataclass(frozen=True)
-class Una:
+class Uv:
     members: list[str] = field(default_factory=_default_members)
+
+
+@dataclass_json
+@dataclass(frozen=True)
+class Una:
     deps: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass_json
 @dataclass(frozen=False)
 class Tool:
+    uv: Uv = field(default_factory=Uv)
     una: Una = field(default_factory=Una)
 
 

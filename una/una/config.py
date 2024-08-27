@@ -30,37 +30,21 @@ def get_ns(path: Path) -> str:
 
 
 def get_members(path: Path) -> list[str]:
-    return load_conf(path).tool.una.members
+    return load_conf(path).tool.uv.members
 
 
 def get_workspace_root() -> Path:
-    cwd = Path.cwd()
-    root = _find_upwards_dir(cwd, consts.ROOT_FILE)
+    root = _find_upwards(Path.cwd(), consts.ROOT_FILE)
     if not root:
         raise ValueError("Didn't find the workspace root. Expected to find a .git directory.")
-    return root
-
-
-def _is_drive_root(cwd: Path) -> bool:
-    return cwd == Path(cwd.root) or cwd == cwd.parent
-
-
-def _is_repo_root(cwd: Path) -> bool:
-    fullpath = cwd / consts.ROOT_FILE
-    return fullpath.exists()
+    return root.parent
 
 
 def _find_upwards(cwd: Path, name: str) -> Path | None:
-    if _is_drive_root(cwd):
+    if cwd == Path(cwd.root) or cwd == cwd.parent:
         return None
-    fullpath = cwd / name
-    if fullpath.exists():
+    elif (fullpath := cwd / name).exists():
         return fullpath
-    if _is_repo_root(cwd):
+    elif (cwd / consts.ROOT_FILE).exists():
         return None
     return _find_upwards(cwd.parent, name)
-
-
-def _find_upwards_dir(cwd: Path, name: str) -> Path | None:
-    fullpath = _find_upwards(cwd, name)
-    return fullpath.parent if fullpath else None

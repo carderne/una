@@ -53,12 +53,14 @@ And start your workspace:
 ```bash
 uv init unarepo   # choose another name if you prefer
 cd unarepo
+git init
 uv add --dev una
 ```
 
 Then setup the Una workspace. This will generate a structure and an example lib and app.
 ```
 uv run una create workspace
+rm -rf src
 uv sync
 ```
 
@@ -92,7 +94,7 @@ It didn't add `cowsay-python`, as external dependencies are only resolved at bui
 
 Now you can build your app:
 ```bash
-uvx --from build pyproject-build --installer uv apps/printer
+uvx --from build pyproject-build --installer=uv --outdir=dist apps/printer
 # this will inject the cowsay-python externel dependency
 ```
 
