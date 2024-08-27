@@ -17,13 +17,19 @@ class UnaBuildHook(BuildHookInterface[BuilderConfig]):
     PLUGIN_NAME = "una-build"
 
     def initialize(self, version: str, build_data: dict[str, Any]) -> None:
-        print("una: Injecting internal dependencies")
+        via_sdist = Path("PKG-INFO").exists()
+        if via_sdist:
+            print("una-build: In sdist, do nothing")
+            return
+
+        print("una-build: Injecting internal dependencies")
 
         # load the config for this package
         path = Path(self.root)
-        conf = util.load_conf(path)
+        root = util.get_workspace_root()
+        root_conf = util.load_conf(root)
         members: list[str] = (
-            conf.get("tool", {}).get("uv", {}).get("workspace", {}).get("members", [])  # pyright:ignore[reportAny]
+            root_conf.get("tool", {}).get("uv", {}).get("workspace", {}).get("members", [])  # pyright:ignore[reportAny]
         )
         _, int_deps = util.get_dependencies(path)
 
@@ -31,29 +37,17 @@ class UnaBuildHook(BuildHookInterface[BuilderConfig]):
             # this is fine, the package doesn't import anything internally
             return
 
-        via_sdist = Path("PKG-INFO").exists()
-        if via_sdist:
-            # nothing to do as everything should already be included in sdist...
-            return
-
         add_dep_files: dict[str, str] = {}
-        for d in int_deps:
-            package_dir = util.find_package_dir(d, members)
+        package_dirs = [util.find_package_dir(d, members) for d in int_deps]
+        for package_dir in package_dirs:
             finder = SdistBuilder(str(package_dir))
             files = [Path(f.path) for f in finder.recurse_selected_project_files()]
             for f in files:
                 add_dep_files[str(f)] = str(f.relative_to(package_dir))
 
-        # make sure all int_deps exist
-        found = [Path(k) for k in int_deps if (path / k).exists()]
-        missing = set(int_deps) - set(str(p) for p in found)
-        if len(missing) > 0:
-            missing_str = ", ".join(missing)
-            raise ValueError(f"Could not find these paths: {missing_str}")
-
         add_packages_pyproj = {
-            str(f.parents[1] / util.PYPROJ): str(util.EXTRA_PYPROJ / f.name / util.PYPROJ)
-            for f in found
+            str(p / util.PYPROJ): str(util.EXTRA_PYPROJ / p.name / util.PYPROJ)
+            for p in package_dirs
         }
 
         build_data["force_include"] = {

@@ -16,7 +16,7 @@ version = "0.1.0"
 description = ""
 authors = []
 dependencies = [{dependencies}]
-requires-python = "{python_version}"
+requires-python = "{requires_python}"
 dynamic = ["una"]  # needed for hatch-una metadata hook to work
 
 [build-system]
@@ -99,7 +99,7 @@ def create_package(
     internal_deps: str,
 ) -> None:
     conf = config.load_conf(path)
-    python_version = conf.project.requires_python
+    requires_python = conf.tool.una.requires_python or ">= 3.11"
 
     package_dir = _create_dir(path, f"{top_dir}/{name}")
     ns_dir = _create_dir(path, f"{top_dir}/{name}/{ns}")
@@ -116,7 +116,7 @@ def create_package(
     )
     pyproj_content = _TEMPLATE_PYPROJ.format(
         name=name,
-        python_version=python_version,
+        requires_python=requires_python,
         dependencies=dependencies,
         sources=internal_deps,
     )
@@ -151,10 +151,11 @@ def _update_root_pyproj(path: Path, dependencies: str) -> str:
         toml = tomlkit.parse(f.read())
 
     ns: str = toml["project"]["name"]  # pyright:ignore[reportIndexIssue,reportAssignmentType]
+    requires_python: str = toml["project"]["requires-python"]  # pyright:ignore[reportIndexIssue,reportAssignmentType]
     toml.pop("project")  # pyright:ignore[reportUnknownMemberType]
     toml.pop("build-system")  # pyright:ignore[reportUnknownMemberType]
     toml["tool"]["uv"]["workspace"] = {"members": _EXAMPLE_MEMBERS}  # pyright:ignore[reportIndexIssue]
-    toml["tool"]["una"] = {"namespace": ns}  # pyright:ignore[reportIndexIssue]
+    toml["tool"]["una"] = {"namespace": ns, "requires_python": requires_python}  # pyright:ignore[reportIndexIssue]
     with pyproj.open("w") as f:
         f.write(tomlkit.dumps(toml))  # pyright:ignore[reportUnknownMemberType]
     return ns

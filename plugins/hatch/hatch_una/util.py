@@ -11,6 +11,15 @@ def load_conf(path: Path) -> dict[str, Any]:
         return tomllib.load(fp)
 
 
+def get_members() -> list[str]:
+    root = get_workspace_root()
+    root_conf = load_conf(root)
+    members: list[str] = (
+        root_conf.get("tool", {}).get("uv", {}).get("workspace", {}).get("members", [])  # pyright:ignore[reportAny]
+    )
+    return members
+
+
 def get_dependencies(path: Path) -> tuple[list[str], list[str]]:
     conf = load_conf(path)
     all_deps: list[str] = conf["project"].get("dependencies", [])  # pyright:ignore[reportAny]
@@ -31,7 +40,7 @@ def get_dependencies(path: Path) -> tuple[list[str], list[str]]:
 
 
 def find_package_dir(name: str, members: list[str]) -> Path:
-    root = _get_workspace_root()
+    root = get_workspace_root()
     for glob in members:
         packages = sorted(root.glob(glob))
         for p in packages:
@@ -40,7 +49,7 @@ def find_package_dir(name: str, members: list[str]) -> Path:
     raise ValueError(f"Couldn't find package '{name}'")
 
 
-def _get_workspace_root() -> Path:
+def get_workspace_root() -> Path:
     root = _find_upwards(Path.cwd())
     if not root:
         raise ValueError("Didn't find the workspace root. Expected to find a .git directory.")

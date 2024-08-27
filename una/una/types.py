@@ -87,6 +87,7 @@ class Uv:
 @dataclass(frozen=True)
 class Una:
     namespace: str | None = None
+    requires_python: str | None = None
 
 
 @dataclass_json
