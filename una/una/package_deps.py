@@ -2,23 +2,13 @@ import re
 from pathlib import Path
 
 from una import config
-from una.types import Conf, ConfWrapper, ExtDep, Include, IntDep, PackageDeps
+from una.types import ConfWrapper, ExtDep, IntDep, PackageDeps
 
 
 def get_packages(root: Path, ns: str) -> list[PackageDeps]:
-    root_conf = config.load_conf(root)
-    ns = root_conf.project.name
     confs = get_package_confs(root)
-    packages = [
-        PackageDeps(
-            name=c.conf.project.name,
-            path=c.path,
-            ext_deps=_get_package_ext_deps(c.conf),
-            int_deps=_get_package_int_deps(c, confs, ns),
-        )
-        for c in confs
-    ]
-    return [p for p in packages if Path.cwd().name in p.path.as_posix()]
+    packages = [_get_package_deps(c) for c in confs if Path.cwd().name in c.path.as_posix()]
+    return packages
 
 
 def get_package_confs(root: Path) -> list[ConfWrapper]:
@@ -30,34 +20,26 @@ def get_package_confs(root: Path) -> list[ConfWrapper]:
     return packages
 
 
-def _parse_deps_table(dep: str) -> ExtDep | None:
-    parts = re.split(r"[\^~=!<>]", dep)
+def _parse_deps_table(dep: str) -> ExtDep:
+    parts: list[str] = re.split(r"[\^~=!<>]", dep)
     name, *_ = parts if parts else [""]
-    version = str.replace(dep, name, "")
-    if name:
-        return ExtDep(name, version)
-    return None
+    version = dep.replace(name, "")
+    return ExtDep(name, version)
 
 
-def _get_package_ext_deps(conf: Conf) -> list[ExtDep]:
-    deps = conf.project.dependencies
-    items = [_parse_deps_table(dep) for dep in deps]
-    items_filt = [it for it in items if it]
-    return items_filt
-
-
-def _get_package_int_deps(
-    conf: ConfWrapper,
-    all_confs: list[ConfWrapper],
-    namespace: str,
-) -> list[IntDep]:
-    packages = [Include(src=k, dst=v) for k, v in conf.conf.tool.una.deps.items()]
-    paths = [(conf.path / p.src).parents[1].resolve() for p in packages]
-
-    all_paths = {Path(c.path) for c in all_confs}
-    pkg_deps_paths = sorted(all_paths.intersection(paths))
-    pkg_deps = [IntDep(path=Path(p), name=Path(p).name) for p in pkg_deps_paths]
-
-    # add self
-    pkg_deps.append(IntDep(path=conf.path, name=conf.conf.project.name))
-    return pkg_deps
+def _get_package_deps(conf: ConfWrapper) -> PackageDeps:
+    items = [_parse_deps_table(dep) for dep in conf.conf.project.dependencies]
+    ext_deps: list[ExtDep] = []
+    int_deps: list[IntDep] = []
+    for it in items:
+        if it.name in conf.conf.tool.uv.sources:
+            if conf.conf.tool.uv.sources[it.name].workspace:
+                int_deps.append(IntDep(name=it.name))
+                continue
+        ext_deps.append(it)
+    return PackageDeps(
+        name=conf.conf.project.name,
+        path=conf.path,
+        ext_deps=ext_deps,
+        int_deps=int_deps,
+    )

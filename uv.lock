@@ -4,7 +4,6 @@ requires-python = ">=3.11"
 [manifest]
 members = [
     "hatch-una",
-    "pdm-una",
     "una",
 ]
 requirements = [
@@ -131,7 +130,7 @@ wheels = [
 
 [[package]]
 name = "hatch-una"
-version = "0.2.1.dev18+gb206798.d20240827"
+version = "0.3.2.dev2+ga35a5a9"
 source = { editable = "plugins/hatch" }
 dependencies = [
     { name = "hatchling" },
@@ -382,26 +381,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/ca/bc/f35b8446f4531a7cb
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl", hash = "sha256:a0d503e138a4c123b27490a4f7beda6a01c6f288df0e4a8b79c7eb0dc7b4cc08", size = 31191 },
 ]
-
-[[package]]
-name = "pdm-backend"
-version = "2.3.3"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/75/2b/0be2d0f2eba3a4acb755fd2b0e442ef67770b2ef6c75fd646d49f20968fa/pdm_backend-2.3.3.tar.gz", hash = "sha256:a8616f628ec84353d7a0ba86b228dcf01bab5debc9e4d1a29e5311a52425d594", size = 109222 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/eb/fe/483cf0918747a32800795f430319ec292f833eb871ba6da3ebed4553a575/pdm_backend-2.3.3-py3-none-any.whl", hash = "sha256:db6e86de8ca84e4264c35a620877b14aba8092ad7a34de395715553144668823", size = 104947 },
-]
-
-[[package]]
-name = "pdm-una"
-version = "0.2.1.dev21+gd9be7e8.d20240827"
-source = { editable = "plugins/pdm" }
-dependencies = [
-    { name = "pdm-backend" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "pdm-backend" }]
 
 [[package]]
 name = "platformdirs"
@@ -683,7 +662,7 @@ wheels = [
 
 [[package]]
 name = "una"
-version = "0.2.1.dev23+g1380e02.d20240827"
+version = "0.3.2.dev2+ga35a5a9"
 source = { editable = "una" }
 dependencies = [
     { name = "dataclasses-json" },

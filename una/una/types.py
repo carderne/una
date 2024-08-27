@@ -11,12 +11,6 @@ Json: TypeAlias = dict[str, "Json"] | list["Json"] | str | int | float | bool | 
 Imports: TypeAlias = dict[str, set[str]]
 
 
-@dataclass
-class Include:
-    src: str
-    dst: str
-
-
 @dataclass(frozen=True)
 class ExtDep:
     name: str
@@ -25,8 +19,8 @@ class ExtDep:
 
 @dataclass(frozen=True)
 class IntDep:
-    path: Path
     name: str
+    version: str = ""
 
 
 @dataclass(frozen=False)
@@ -60,8 +54,8 @@ def _rename_keys(old: str, new: str) -> Callable[[Json], None]:
 @dataclass_json
 @dataclass(frozen=True)
 class Project:
-    name: str
-    dependencies: list[str]
+    name: str = ""
+    dependencies: list[str] = field(default_factory=list)
     version: str | None = None
     requires_python: str = ">= 3.8"
 
@@ -72,14 +66,27 @@ def _default_members() -> list[str]:
 
 @dataclass_json
 @dataclass(frozen=True)
-class Uv:
+class UvWorkspace:
     members: list[str] = field(default_factory=_default_members)
 
 
 @dataclass_json
 @dataclass(frozen=True)
+class UvSourceIsWorkspace:
+    workspace: bool = False
+
+
+@dataclass_json
+@dataclass(frozen=True)
+class Uv:
+    workspace: UvWorkspace = field(default_factory=UvWorkspace)
+    sources: dict[str, UvSourceIsWorkspace] = field(default_factory=dict)
+
+
+@dataclass_json
+@dataclass(frozen=True)
 class Una:
-    deps: dict[str, str] = field(default_factory=dict)
+    namespace: str | None = None
 
 
 @dataclass_json
@@ -102,8 +109,8 @@ class Conf:
     See the caveats on `to_str()`.
     """
 
-    project: Project
     tool: Tool
+    project: Project = field(default_factory=Project)
     _tomldoc: tomlkit.TOMLDocument | None = field(default=None)
 
     if TYPE_CHECKING:
@@ -134,7 +141,7 @@ class Conf:
 
         # deal with a a non-existent tool.una.deps
         try:
-            tomldoc["tool"]["una"]["deps"].update(self.tool.una.deps)  # type: ignore[reportIndexIssues]
+            tomldoc["tool"]["uv"]["sources"].update(self.tool.uv.sources)  # type: ignore[reportIndexIssues]
         except KeyError:
             una = tomlkit.table(True)
             deps = tomlkit.table()
@@ -155,7 +162,7 @@ class Conf:
         To preserve the original formatting and make my life easy, this function
         will currently only modify the following fields:
         - project.dependencies
-        - tool.una.deps
+        - tool.uv.sources
         - tool.hatch.build.hooks.una-build
         - tool.hatch.meta.hooks.una-meta
 

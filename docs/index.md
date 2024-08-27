@@ -29,12 +29,7 @@ Una doesn't try to replicate a full build system such as [Bazel](https://bazel.b
 
 Una works much like a Rust workspace, with each package having its own pyproject.toml. In general, packages should either be libraries (imported but not run) or apps (run but never imported), but Una will not enforce this.
 
-Currently it works with the following build backends, but more will follow:
-
-- [Hatch](https://hatch.pypa.io) (used by default and and in all documentation)
-- [PDM](https://pdm-project.org/)
-
-All instructions and examples use [uv](https://docs.astral.sh/uv/) for local development.
+It only works with [uv](https://docs.astral.sh/uv/) and with the [Hatch](https://hatch.pypa.io) build backend.
 
 ## Examples
 You can see an example repo here:

@@ -17,5 +17,4 @@ jobs:
       - run: |
           uvx --from build pyproject-build --installer uv --outdir=dist una
           uvx --from build pyproject-build --installer uv --outdir=dist plugins/hatch
-          uvx --from build pyproject-build --installer uv --outdir=dist plugins/pdm
       - uses: pypa/gh-action-pypi-publish@release/v1

@@ -21,30 +21,27 @@ def load_conf(path: Path) -> Conf:
     return _load_conf(fullpath)
 
 
-def sanitise_name(name: str) -> str:
-    return name.replace("-", "_")
-
-
 def get_ns(path: Path) -> str:
-    return sanitise_name(load_conf(path).project.name)
+    ns = load_conf(path).tool.una.namespace
+    if ns is None:
+        raise ValueError("No namespace set in pyproject.toml")
+    return ns
 
 
 def get_members(path: Path) -> list[str]:
-    return load_conf(path).tool.uv.members
+    return load_conf(path).tool.uv.workspace.members
 
 
 def get_workspace_root() -> Path:
-    root = _find_upwards(Path.cwd(), consts.ROOT_FILE)
+    root = _find_upwards(Path.cwd())
     if not root:
         raise ValueError("Didn't find the workspace root. Expected to find a .git directory.")
-    return root.parent
+    return root
 
 
-def _find_upwards(cwd: Path, name: str) -> Path | None:
+def _find_upwards(cwd: Path) -> Path | None:
     if cwd == Path(cwd.root) or cwd == cwd.parent:
         return None
-    elif (fullpath := cwd / name).exists():
-        return fullpath
     elif (cwd / consts.ROOT_FILE).exists():
-        return None
-    return _find_upwards(cwd.parent, name)
+        return cwd
+    return _find_upwards(cwd.parent)
