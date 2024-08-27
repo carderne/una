@@ -12,7 +12,7 @@ pythonVersion = "3.11"
 strict = ["**/*.py"]
 ```
 
-Once that is added, you can run `rye run pyright` in the root and it should work correctly.
+Once that is added, you can run `uv run pyright` in the root and it should work correctly.
 
 ## Pytest
 You can just configure pytest as follows in the root pyproject.toml:

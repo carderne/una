@@ -1,22 +1,22 @@
 # Quickstart
 This will give you a quick view of how this all works.
 
-First install Rye:
+First install uv:
 ```bash
-curl -sSf https://rye.astral.sh/get | bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 And start your workspace:
 ```bash
-rye init unarepo   # choose another name if you prefer
+uv init unarepo   # choose another name if you prefer
 cd unarepo
-rye add --dev una
+uv add --dev una
 ```
 
 Then setup the Una workspace. This will generate a structure and an example lib and app.
 ```
-rye run una create workspace
-rye sync
+uv run una create workspace
+uv sync
 ```
 
 Have a look at what's been generated:
@@ -36,7 +36,7 @@ You can do this by running the following:
 ```bash
 # this checks all imports and ensures they are added to
 # [tool.una.deps] in the appropriate pyproject.toml
-rye run una sync
+uv run una sync
 ```
 
 Have a look at what happened:
@@ -49,7 +49,7 @@ It didn't add `cowsay-python`, as external dependencies are only resolved at bui
 
 Now you can build your app:
 ```bash
-rye build --package printer
+uvx --from build pyproject-build --installer uv apps/printer
 # this will inject the cowsay-python externel dependency
 ```
 

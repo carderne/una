@@ -1,14 +1,14 @@
 [project]
-name = "pdm-una"
+name = "una"
 dynamic = ["version"]
 description = "Python monorepo tooling"
 authors = [
     { name = "Chris Arderne", email = "chris@rdrn.me" }
 ]
-readme = "README.md"
+readme = "../README.md"
 license = {text = "MIT License"}
 requires-python = ">= 3.11"
-keywords = ["uv", "pdm", "monorepo", "build", "python"]
+keywords = ["uv", "monorepo", "build", "python"]
 
 classifiers = [
   "Environment :: Console",
@@ -21,14 +21,19 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 
-dependencies = ["pdm-backend"]
+dependencies = [
+  "dataclasses-json ~= 0.6",
+  "rich ~= 13.1",
+  "tomlkit ~= 0.10",
+  "typer ~= 0.8",
+]
 
 [project.urls]
 homepage = "https://github.com/carderne/una"
 repository = "https://github.com/carderne/una"
 
-[project.entry-points."pdm.build.hook"]
-una = "pdm_una.hook"
+[project.scripts]
+una = "una.cli:app"
 
 [tool.uv]
 dev-dependencies = []
@@ -37,15 +42,19 @@ dev-dependencies = []
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
+[tool.hatch.build.targets.wheel]
+packages = ["una"]
+
 [tool.hatch.version]
 source = "vcs"
-raw-options = { root = "../.." }
+raw-options = { root = ".." }
 
 [tool.basedpyright]
-venvPath = "../.."
+venvPath = ".."
 venv = ".venv"
 pythonVersion = "3.11"
 strict = ["**/*.py"]
+extraPaths = ["plugins/hatch"]
 reportUnnecessaryTypeIgnoreComment = true
 reportImplicitOverride = false
 reportUnusedCallResult = false

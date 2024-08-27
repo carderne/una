@@ -26,8 +26,7 @@ build-backend = "hatchling.build"
 [tool.hatch.metadata]
 allow-direct-references = true
 
-[tool.rye]
-managed = true
+[tool.uv]
 dev-dependencies = []
 
 [tool.hatch.build.hooks.una-build]
@@ -150,8 +149,7 @@ def _update_root_pyproj(path: Path, ns: str, dependencies: str) -> None:
     with pyproj.open() as f:
         toml = tomlkit.parse(f.read())
 
-    toml["tool"]["rye"]["virtual"] = True  # pyright:ignore[reportIndexIssue]
-    toml["tool"]["rye"]["workspace"] = {"members": _EXAMPLE_MEMBERS}  # pyright:ignore[reportIndexIssue]
+    toml["tool"]["uv"]["workspace"] = {"members": _EXAMPLE_MEMBERS}  # pyright:ignore[reportIndexIssue]
     toml["tool"]["una"] = {"members": _EXAMPLE_MEMBERS}  # pyright:ignore[reportIndexIssue]
     with pyproj.open("w") as f:
         f.write(tomlkit.dumps(toml))  # pyright:ignore[reportUnknownMemberType]
