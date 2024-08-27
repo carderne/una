@@ -155,7 +155,7 @@ def _update_root_pyproj(path: Path, dependencies: str) -> str:
     toml.pop("project")  # pyright:ignore[reportUnknownMemberType]
     toml.pop("build-system")  # pyright:ignore[reportUnknownMemberType]
     toml["tool"]["uv"]["workspace"] = {"members": _EXAMPLE_MEMBERS}  # pyright:ignore[reportIndexIssue]
-    toml["tool"]["una"] = {"namespace": ns, "requires_python": requires_python}  # pyright:ignore[reportIndexIssue]
+    toml["tool"]["una"] = {"namespace": ns, "requires-python": requires_python}  # pyright:ignore[reportIndexIssue]
     with pyproj.open("w") as f:
         f.write(tomlkit.dumps(toml))  # pyright:ignore[reportUnknownMemberType]
     return ns
