@@ -20,26 +20,26 @@ cd una
 git checkout -b add-my-contribution
 ```
 
-## Setup Rye
-Install it if needed (full instructions [here](https://rye.astral.sh/)):
+## Setup uv
+Install it if needed (full instructions [here](https://docs.astral.sh/uv/getting-started/installation/)):
 ```bash
-curl -sSf https://rye.astral.sh/get | bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 Then sync your local environment:
 ```bash
-rye sync
+uv sync
 ```
 
 ## Run all code quality checks
 ```bash
-rye run fmt
-rye run lint
-rye run check
-rye run test
+make fmt
+make lint
+make check
+make test
 
 # or
-rye run all
+make all
 ```
 
 ## Open a PR

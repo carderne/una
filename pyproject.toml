@@ -1,10 +1,3 @@
-[tool.rye.scripts]
-fmt = "rye fmt"
-lint = "rye lint --fix"
-check = "basedpyright"
-test = "rye test"
-all = { chain = ["fmt", "lint", "check", "test"] }
-
 [project]
 name = "una"
 dynamic = ["version"]
@@ -15,7 +8,7 @@ authors = [
 readme = "README.md"
 license = {text = "MIT License"}
 requires-python = ">= 3.11"
-keywords = ["rye", "monorepo", "build", "python"]
+keywords = ["uv", "monorepo", "build", "python"]
 
 classifiers = [
   "Environment :: Console",
@@ -42,15 +35,14 @@ repository = "https://github.com/carderne/una"
 [project.scripts]
 una = "una.cli:app"
 
-[tool.rye]
-managed = true
+[tool.uv]
 dev-dependencies = [
     "pytest~=8.3.1",
     "basedpyright~=1.15.2",
     "mkdocs-material~=9.5.31",
 ]
 
-[tool.rye.workspace]
+[tool.uv.workspace]
 members = [".", "plugins/*"]
 
 [build-system]

@@ -2,7 +2,7 @@
 
 site_name: una
 site_url: https://una.rdrn.me/
-site_description: Monorepo tooling for Python and Rye
+site_description: Monorepo tooling for Python and uv
 site_author: Chris Arderne
 repo_name: carderne/una
 repo_url: https://github.com/carderne/una

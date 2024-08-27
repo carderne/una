@@ -1,6 +1,3 @@
-[tool.rye.scripts]
-check = "basedpyright"
-
 [project]
 name = "pdm-una"
 dynamic = ["version"]
@@ -11,7 +8,7 @@ authors = [
 readme = "README.md"
 license = {text = "MIT License"}
 requires-python = ">= 3.11"
-keywords = ["rye", "pdm", "monorepo", "build", "python"]
+keywords = ["uv", "pdm", "monorepo", "build", "python"]
 
 classifiers = [
   "Environment :: Console",
@@ -33,8 +30,7 @@ repository = "https://github.com/carderne/una"
 [project.entry-points."pdm.build.hook"]
 una = "pdm_una.hook"
 
-[tool.rye]
-managed = true
+[tool.uv]
 dev-dependencies = ["pdm-backend"]
 
 [build-system]

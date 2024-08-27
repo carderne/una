@@ -34,7 +34,7 @@ Currently it works with the following build backends, but more will follow:
 - [Hatch](https://hatch.pypa.io) (used by default and and in all documentation)
 - [PDM](https://pdm-project.org/)
 
-All instructions and examples use Rye for local development, but there is nothing inherently Rye-specific about the tool.
+All instructions and examples use [uv](https://docs.astral.sh/uv/) for local development.
 
 ## Examples
 You can see an example repo here:

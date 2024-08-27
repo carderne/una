@@ -4,7 +4,7 @@ But you will likely struggle to manage your monorepo without the tool!
 
 So you may as well install it:
 ```bash
-rye add --dev una
+uv add --dev una
 ```
 
 As for the build-time `hatch-una`, it will automatically be installed by build tools when it spots this in your `pyproject.toml` (this will be configured automatically by the CLI):

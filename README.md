@@ -34,7 +34,7 @@ Currently it works with the following build backends, but more will follow:
 - [Hatch](https://hatch.pypa.io) (used by default and and in all documentation)
 - [PDM](https://pdm-project.org/)
 
-All instructions and examples use Rye for local development, but there is nothing inherently Rye-specific about the tool.
+All instructions and examples use [uv](https://docs.astral.sh/uv/) for local development.
 
 ## Examples
 You can see an example repo here:
@@ -44,22 +44,22 @@ You can see an example repo here:
 ## Quickstart
 This will give you a quick view of how this all works.
 
-First install Rye:
+First install uv:
 ```bash
-curl -sSf https://rye.astral.sh/get | bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 And start your workspace:
 ```bash
-rye init unarepo   # choose another name if you prefer
+uv init unarepo   # choose another name if you prefer
 cd unarepo
-rye add --dev una
+uv add --dev una
 ```
 
 Then setup the Una workspace. This will generate a structure and an example lib and app.
 ```
-rye run una create workspace
-rye sync
+uv run una create workspace
+uv sync
 ```
 
 Have a look at what's been generated:
@@ -79,7 +79,7 @@ You can do this by running the following:
 ```bash
 # this checks all imports and ensures they are added to
 # [tool.una.deps] in the appropriate pyproject.toml
-rye run una sync
+uv run una sync
 ```
 
 Have a look at what happened:
@@ -92,7 +92,7 @@ It didn't add `cowsay-python`, as external dependencies are only resolved at bui
 
 Now you can build your app:
 ```bash
-rye build --package printer
+uvx --from build pyproject-build --installer uv apps/printer
 # this will inject the cowsay-python externel dependency
 ```
 
@@ -121,7 +121,7 @@ But you will likely struggle to manage your monorepo without the tool!
 
 So you may as well install it:
 ```bash
-rye add --dev una
+uv add --dev una
 ```
 
 As for the build-time `hatch-una`, it will automatically be installed by build tools when it spots this in your `pyproject.toml` (this will be configured automatically by the CLI):
@@ -134,19 +134,17 @@ build-backend = "hatchling.build"
 ## Usage
 The CLI has a few commands and options, have a look:
 ```bash
-rye run una --help
+uv run una --help
 
  Usage: una [OPTIONS] COMMAND [ARGS]...
 
-╭─ Options ───────────────────────────────────────────────────────────────╮
-│ --help          Show this message and exit.                             │
-╰─────────────────────────────────────────────────────────────────────────╯
-╭─ Commands ──────────────────────────────────────────────────────────────╮
-│ create   Commands for creating a workspace, apps, libs and projects.    │
-│ diff     Shows changed int_deps compared to the latest git tag.         │
-│ info     Info about the Una workspace.                                  │
-│ sync     Update pyproject.toml with missing int_deps.                   │
-╰─────────────────────────────────────────────────────────────────────────╯
+╭─ Options ─────────────────────────────────────────────╮
+│ --help          Show this message and exit.           │
+╰───────────────────────────────────────────────────────╯
+╭─ Commands ────────────────────────────────────────────╮
+│ create   Commands for creating workspace and packages.│
+│ sync     Update packages with missing dependencies.   │
+╰───────────────────────────────────────────────────────╯
 ```
 
 ## Documentation
@@ -160,10 +158,10 @@ It covers additional things like:
 ## Contributing
 See the instructions at the [official documentation](https://una.rdrn.me/contributing/).
 
-Very briefly, local development is with Rye:
+Very briefly, local development is with uv:
 ```bash
-rye sync
-rye run all  # will fmt, lint, typecheck and test
+uv sync
+make all  # will fmt, lint, typecheck and test
 ```
 
 Then open a PR.

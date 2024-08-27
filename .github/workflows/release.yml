@@ -10,9 +10,12 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
-      - uses: eifinger/setup-rye@v3
-        id: setup-rye
+      - uses: actions/setup-python@v5
         with:
-          version: '0.38.0'
-      - run: rye build --all
+          python-version: '3.12'
+      - run: pip install uv
+      - run: |
+          uvx --from build pyproject-build --installer uv --outdir=dist .
+          uvx --from build pyproject-build --installer uv --outdir=dist plugins/hatch
+          uvx --from build pyproject-build --installer uv --outdir=dist plugins/pdm
       - uses: pypa/gh-action-pypi-publish@release/v1

@@ -1,6 +1,3 @@
-[tool.rye.scripts]
-check = "basedpyright"
-
 [project]
 name = "hatch-una"
 dynamic = ["version"]
@@ -11,7 +8,7 @@ authors = [
 readme = "README.md"
 license = {text = "MIT License"}
 requires-python = ">= 3.11"
-keywords = ["rye", "hatch", "monorepo", "build", "python"]
+keywords = ["uv", "hatch", "monorepo", "build", "python"]
 
 classifiers = [
   "Environment :: Console",
@@ -34,8 +31,7 @@ repository = "https://github.com/carderne/una"
 una-build = "hatch_una.hatch_build"
 una-meta = "hatch_una.hatch_meta"
 
-[tool.rye]
-managed = true
+[tool.uv]
 dev-dependencies = []
 
 [build-system]
