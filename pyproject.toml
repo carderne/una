@@ -4,6 +4,7 @@ dev-dependencies = [
     "basedpyright >= 1.15.2",
     "mkdocs-material >= 9.5.31",
     "ruff >= 0.6.2",
+    "mkdocs-typer>=0.0.3",
 ]
 
 [tool.uv.workspace]

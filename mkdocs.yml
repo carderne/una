@@ -22,13 +22,16 @@ theme:
     - navigation.instant
     - navigation.sections
 
+markdown_extensions:
+  - mkdocs-typer
+
 nav:
   - Home:
     - About: index.md
     - Quickstart: quickstart.md
   - Walkthrough:
     - Install: install.md
-    - Usage: usage.md
+    - Commands: commands.md
     - Build: build.md
     - Packages: packages.md
   - Integration:

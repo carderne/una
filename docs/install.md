@@ -1,5 +1,5 @@
 # Installation
-The CLI tool isn't strictly necessary, as all the stuff that lets the monorepo builds work is in the separate (and tiny) [hatch-una](plugins/hatch) package.
+The CLI tool isn't strictly necessary, as all the stuff that lets the monorepo builds work is in the separate (and tiny) [hatch-una](https://github.com/carderne/una/tree/main/plugins/hatch) package.
 But you will likely struggle to manage your monorepo without the tool!
 
 So you may as well install it:

@@ -9,6 +9,7 @@ members = [
 requirements = [
     { name = "basedpyright", specifier = ">=1.15.2" },
     { name = "mkdocs-material", specifier = ">=9.5.31" },
+    { name = "mkdocs-typer", specifier = ">=0.0.3" },
     { name = "pytest", specifier = ">=8.3.1" },
     { name = "ruff", specifier = ">=0.6.2" },
 ]
@@ -130,7 +131,7 @@ wheels = [
 
 [[package]]
 name = "hatch-una"
-version = "0.3.2.dev2+ga35a5a9"
+version = "0.3.2.dev3+g6f51815"
 source = { editable = "plugins/hatch" }
 dependencies = [
     { name = "hatchling" },
@@ -330,6 +331,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/79/9b/9b4c96d6593b2a541e1cb8b34899a6d021d208bb357042823d4d2cabdbe7/mkdocs_material_extensions-1.3.1.tar.gz", hash = "sha256:10c9511cea88f568257f960358a467d12b970e1f7b2c0e5fb2bb48cab1928443", size = 11847 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5b/54/662a4743aa81d9582ee9339d4ffa3c8fd40a4965e033d77b9da9774d3960/mkdocs_material_extensions-1.3.1-py3-none-any.whl", hash = "sha256:adff8b62700b25cb77b53358dad940f3ef973dd6db797907c49e3c2ef3ab4e31", size = 8728 },
+]
+
+[[package]]
+name = "mkdocs-typer"
+version = "0.0.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "markdown" },
+    { name = "typer" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/91/1a/b2ac21a04c8e487a1fccc3982f9d91319b83a64c3fc3dc51d89658f43b57/mkdocs_typer-0.0.3.tar.gz", hash = "sha256:4dd37f024190a82aaf0f6c984faafb15167d34eab7e29a6a85e61362423a4eb7", size = 11381 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/38/34/4d6722b7cdb5e37474272205df6f2080ad01aff74570820a83dedb314f1b/mkdocs_typer-0.0.3-py3-none-any.whl", hash = "sha256:b2a9a44da590a7100114fde4de9123fedfea692d229379984db20ee3b3f12d7c", size = 11564 },
 ]
 
 [[package]]
@@ -662,7 +676,7 @@ wheels = [
 
 [[package]]
 name = "una"
-version = "0.3.2.dev2+ga35a5a9"
+version = "0.3.2.dev3+g6f51815"
 source = { editable = "una" }
 dependencies = [
     { name = "dataclasses-json" },
