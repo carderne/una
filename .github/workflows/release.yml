@@ -15,7 +15,7 @@ jobs:
           python-version: '3.12'
       - run: pip install uv
       - run: |
-          uvx --from build pyproject-build --installer uv --outdir=dist .
+          uvx --from build pyproject-build --installer uv --outdir=dist una
           uvx --from build pyproject-build --installer uv --outdir=dist plugins/hatch
           uvx --from build pyproject-build --installer uv --outdir=dist plugins/pdm
       - uses: pypa/gh-action-pypi-publish@release/v1
