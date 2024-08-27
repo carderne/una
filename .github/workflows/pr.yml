@@ -36,7 +36,7 @@ jobs:
       - run: pip install uv
       - name: Sync
         run: |
-          uv sync --system
+          uv sync --python-preference=system
           if [[ $(git diff --stat uv.lock) != '' ]]; then
             echo 'uv.lock not up-to-date'
             git diff uv.lock
