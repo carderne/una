@@ -3,6 +3,7 @@ from typing import Any
 
 from hatchling.builders.config import BuilderConfig
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
+from hatchling.builders.sdist import SdistBuilder
 from hatchling.plugin import hookimpl
 
 from hatch_una import util
@@ -21,14 +22,10 @@ class UnaBuildHook(BuildHookInterface[BuilderConfig]):
         # load the config for this package
         path = Path(self.root)
         conf = util.load_conf(path)
-        name: str = conf["project"]["name"]
-
-        try:
-            int_deps: dict[str, str] = conf["tool"]["una"]["deps"]
-        except KeyError as e:
-            raise KeyError(
-                f"Package '{name}' is missing '[tool.una.deps]' in pyproject.toml"
-            ) from e
+        members: list[str] = (
+            conf.get("tool", {}).get("uv", {}).get("workspace", {}).get("members", [])  # pyright:ignore[reportAny]
+        )
+        _, int_deps = util.get_dependencies(path)
 
         if not int_deps:
             # this is fine, the package doesn't import anything internally
@@ -38,6 +35,14 @@ class UnaBuildHook(BuildHookInterface[BuilderConfig]):
         if via_sdist:
             # nothing to do as everything should already be included in sdist...
             return
+
+        add_dep_files: dict[str, str] = {}
+        for d in int_deps:
+            package_dir = util.find_package_dir(d, members)
+            finder = SdistBuilder(str(package_dir))
+            files = [Path(f.path) for f in finder.recurse_selected_project_files()]
+            for f in files:
+                add_dep_files[str(f)] = str(f.relative_to(package_dir))
 
         # make sure all int_deps exist
         found = [Path(k) for k in int_deps if (path / k).exists()]
@@ -53,7 +58,7 @@ class UnaBuildHook(BuildHookInterface[BuilderConfig]):
 
         build_data["force_include"] = {
             **build_data["force_include"],
-            **int_deps,
+            **add_dep_files,
             **add_packages_pyproj,
         }
 

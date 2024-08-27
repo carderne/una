@@ -31,6 +31,7 @@ def sync_command(
     ] = "",
 ):
     """Update packages with missing dependencies."""
+    console = rich_console()
     root = config.get_workspace_root()
     ns = config.get_ns(root)
     alias_list = alias.split(",") if alias else []
@@ -41,7 +42,6 @@ def sync_command(
         d = check.check_package_deps(root, ns, p, alias_list)
         diffs.append(d)
 
-    console = rich_console()
     if check_only:
         for d in diffs:
             if d.ext_dep_diff:
@@ -71,9 +71,10 @@ def create_package_command(
     path: Annotated[str, Argument(help="Where to place the package.")],
 ):
     """Creates an Una package."""
-    root = config.get_workspace_root()
-    files.create_package(root, name, path, "", "", "")
     console = rich_console()
+    root = config.get_workspace_root()
+    ns = config.get_ns(root)
+    files.create_package(root, ns, name, path, "", "", "")
     console.print("Success!")
     console.print(f"Created package {name}")
 
@@ -81,11 +82,9 @@ def create_package_command(
 @create.command("workspace")
 def create_workspace_command():
     """Creates an Una workspace in the current directory."""
-    path = Path.cwd()
-    root = config.get_workspace_root()
-    ns = config.get_ns(root)
-    files.create_workspace(path, ns)
     console = rich_console()
+    path = Path.cwd()
+    files.create_workspace(path)
     console.print("Success!")
     console.print("Set up workspace in current directory.")
     console.print("Remember to delete the src/ directory")

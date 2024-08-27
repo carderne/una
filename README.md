@@ -20,21 +20,20 @@
 
 </div>
 
-Una is a tool to make Python monorepos easier. It is a CLI tool and a build plugin that does the following things:
+Una is a tool to make Python monorepos with [uv](https://docs.astral.sh/uv/) easier.
+It is a CLI tool and a build plugin that does the following things:
 
 1. Enable builds of individual apps or projects within a monorepo.
 2. Ensure that internal and external dependencies are correctly specified.
 
-Una doesn't try to replicate a full build system such as [Bazel](https://bazel.build/) or [Pants](https://www.pantsbuild.org/). It just makes it possible to have a simple monorepo with interdependencies.
+Una doesn't try to replicate a full build system such as [Bazel](https://bazel.build/) or
+[Pants](https://www.pantsbuild.org/).
+It just makes it possible to have a simple monorepo with interdependencies.
 
-Una works much like a Rust workspace, with each package having its own pyproject.toml. In general, packages should either be libraries (imported but not run) or apps (run but never imported), but Una will not enforce this.
+Una works much like a Rust workspace, with each package having its own pyproject.toml.
+In general, packages should either be libraries (imported but not run) or apps (run but never imported), but Una will not enforce this.
 
-Currently it works with the following build backends, but more will follow:
-
-- [Hatch](https://hatch.pypa.io) (used by default and and in all documentation)
-- [PDM](https://pdm-project.org/)
-
-All instructions and examples use [uv](https://docs.astral.sh/uv/) for local development.
+It only works with [uv](https://docs.astral.sh/uv/) and with the [Hatch](https://hatch.pypa.io) build backend.
 
 ## Examples
 You can see an example repo here:

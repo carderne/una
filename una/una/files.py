@@ -29,16 +29,14 @@ allow-direct-references = true
 [tool.uv]
 dev-dependencies = []
 
+[tool.uv.sources]
+{sources}
+
 [tool.hatch.build.hooks.una-build]
-[tool.hatch.metadata.hooks.una-meta]
-
-[tool.una.deps]
-{internal_deps}\
+[tool.hatch.metadata.hooks.una-meta]\
 """
 
-_EXAMPLE_INTERNAL_DEPS = """\
-"../../libs/{dep_name}/{ns}/{dep_name}" = "{ns}/{dep_name}"
-"""
+_EXAMPLE_INTERNAL_DEPS = """{dep_name} = {{ workspace = true }}"""
 
 _EXAMPLE_APP_CODE = """\
 from {ns} import {lib_name}
@@ -65,21 +63,24 @@ def test_import():
 """
 
 
-def create_workspace(path: Path, ns: str) -> None:
-    app_content = _EXAMPLE_APP_CODE.format(ns=ns, lib_name=_EXAMPLE_LIB_NAME)
-    lib_content = _EXAMPLE_LIB_CODE
+def create_workspace(path: Path) -> None:
+    ns = _update_root_pyproj(path, _EXAMPLE_IMPORT)
 
-    _update_root_pyproj(path, ns, _EXAMPLE_IMPORT)
+    app_content = _EXAMPLE_APP_CODE.format(ns=ns, lib_name=_EXAMPLE_LIB_NAME)
+    app_deps = _EXAMPLE_INTERNAL_DEPS.format(dep_name=_EXAMPLE_LIB_NAME)
+    lib_content = _EXAMPLE_LIB_CODE
     create_package(
         path,
+        ns,
         _EXAMPLE_APP_NAME,
         "apps",
         app_content,
-        "",
-        _EXAMPLE_INTERNAL_DEPS.format(ns=ns, dep_name=_EXAMPLE_LIB_NAME),
+        f'"{_EXAMPLE_LIB_NAME}"',
+        app_deps,
     )
     create_package(
         path,
+        ns,
         _EXAMPLE_LIB_NAME,
         "libs",
         lib_content,
@@ -90,6 +91,7 @@ def create_workspace(path: Path, ns: str) -> None:
 
 def create_package(
     path: Path,
+    ns: str,
     name: str,
     top_dir: str,
     content: str,
@@ -98,7 +100,6 @@ def create_package(
 ) -> None:
     conf = config.load_conf(path)
     python_version = conf.project.requires_python
-    ns = config.get_ns(path)
 
     package_dir = _create_dir(path, f"{top_dir}/{name}")
     ns_dir = _create_dir(path, f"{top_dir}/{name}/{ns}")
@@ -117,7 +118,7 @@ def create_package(
         name=name,
         python_version=python_version,
         dependencies=dependencies,
-        internal_deps=internal_deps,
+        sources=internal_deps,
     )
     _create_file(
         package_dir,
@@ -144,13 +145,16 @@ def _create_dir(path: Path, dir_name: str, keep: bool = False) -> Path:
     return d
 
 
-def _update_root_pyproj(path: Path, ns: str, dependencies: str) -> None:
+def _update_root_pyproj(path: Path, dependencies: str) -> str:
     pyproj = path / consts.PYPROJ_FILE
     with pyproj.open() as f:
         toml = tomlkit.parse(f.read())
 
+    ns: str = toml["project"]["name"]  # pyright:ignore[reportIndexIssue,reportAssignmentType]
     toml.pop("project")  # pyright:ignore[reportUnknownMemberType]
     toml.pop("build-system")  # pyright:ignore[reportUnknownMemberType]
     toml["tool"]["uv"]["workspace"] = {"members": _EXAMPLE_MEMBERS}  # pyright:ignore[reportIndexIssue]
+    toml["tool"]["una"] = {"namespace": ns}  # pyright:ignore[reportIndexIssue]
     with pyproj.open("w") as f:
         f.write(tomlkit.dumps(toml))  # pyright:ignore[reportUnknownMemberType]
+    return ns

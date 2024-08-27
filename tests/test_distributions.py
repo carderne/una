@@ -1,3 +1,5 @@
+"""Code from https://github.com/DavidVujic/python-polylith"""
+
 # pyright: reportPrivateUsage=false
 import importlib.metadata
 
