@@ -20,6 +20,8 @@
 
 </div>
 
+**This is a new project that is still evolving. I'm very open to ideas, suggestions and feedback. Please open an [issue](https://github.com/carderne/una/issues/new) with your comments.**
+
 Una is a tool to build and productionise Python monorepos with [uv](https://docs.astral.sh/uv/).
 
 uv has [Workspaces](https://docs.astral.sh/uv/concepts/workspaces/), but no ability to _build_ them.
