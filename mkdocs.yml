@@ -22,9 +22,6 @@ theme:
     - navigation.instant
     - navigation.sections
 
-markdown_extensions:
-  - mkdocs-typer
-
 nav:
   - Home:
     - About: index.md
