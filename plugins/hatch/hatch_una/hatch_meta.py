@@ -21,19 +21,14 @@ class UnaMetaHook(MetadataHookInterface):
         ext_deps, int_deps = util.get_dependencies(path)
 
         via_sdist = Path("PKG-INFO").exists()
-        members: list[str] = [] if via_sdist else util.get_members()
+        if via_sdist:
+            raise ValueError("Una doesn't work for wheels built from sdist")
+
+        members: list[str] = util.get_members()
 
         add_deps: list[str] = []
         for dep_name in int_deps:
-            # In builds that do src -> sdist -> wheel, the needed pyproject.toml files
-            # will have been copied into the sdist so they're available for the wheel build.
-            # Here we check for both in order.
-
-            dep_path = (
-                util.EXTRA_PYPROJ / Path(dep_name).name
-                if via_sdist
-                else util.find_package_dir(dep_name, members)
-            )
+            dep_path = util.find_package_dir(dep_name, members)
 
             # load all third-party dependencies from this internal dependency into the
             # project.dependencies table

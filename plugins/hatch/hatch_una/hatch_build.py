@@ -19,8 +19,7 @@ class UnaBuildHook(BuildHookInterface[BuilderConfig]):
     def initialize(self, version: str, build_data: dict[str, Any]) -> None:
         via_sdist = Path("PKG-INFO").exists()
         if via_sdist:
-            print("una-build: In sdist, do nothing")
-            return
+            raise ValueError("Una doesn't work for wheels built from sdist")
 
         print("una-build: Injecting internal dependencies")
 
@@ -45,15 +44,9 @@ class UnaBuildHook(BuildHookInterface[BuilderConfig]):
             for f in files:
                 add_dep_files[str(f)] = str(f.relative_to(package_dir))
 
-        add_packages_pyproj = {
-            str(p / util.PYPROJ): str(util.EXTRA_PYPROJ / p.name / util.PYPROJ)
-            for p in package_dirs
-        }
-
         build_data["force_include"] = {
             **build_data["force_include"],
             **add_dep_files,
-            **add_packages_pyproj,
         }
 
 
