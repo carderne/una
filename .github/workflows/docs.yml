@@ -28,5 +28,5 @@ jobs:
           restore-keys: |
             mkdocs-material-
       - run: pip install uv
-      - run: uv sync --python-preference=system
+      - run: uv sync --python-preference=system --package=una
       - run: uv run mkdocs gh-deploy --force

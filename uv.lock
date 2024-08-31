@@ -6,12 +6,6 @@ members = [
     "hatch-una",
     "una",
 ]
-requirements = [
-    { name = "basedpyright", specifier = ">=1.15.2" },
-    { name = "mkdocs-material", specifier = ">=9.5.31" },
-    { name = "pytest", specifier = ">=8.3.1" },
-    { name = "ruff", specifier = ">=0.6.2" },
-]
 
 [[package]]
 name = "babel"
@@ -662,7 +656,7 @@ wheels = [
 
 [[package]]
 name = "una"
-version = "0.5.0a2.dev5+gcdb7179.d20240831"
+version = "0.5.0a2.dev8+g7a8440b.d20240831"
 source = { editable = "una" }
 dependencies = [
     { name = "dataclasses-json" },
@@ -671,12 +665,28 @@ dependencies = [
     { name = "typer" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "basedpyright" },
+    { name = "mkdocs-material" },
+    { name = "pytest" },
+    { name = "ruff" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "dataclasses-json", specifier = "~=0.6" },
     { name = "rich", specifier = "~=13.1" },
     { name = "tomlkit", specifier = "~=0.10" },
     { name = "typer", specifier = "~=0.8" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "basedpyright", specifier = ">=1.15.2" },
+    { name = "mkdocs-material", specifier = ">=9.5.31" },
+    { name = "pytest", specifier = ">=8.3.1" },
+    { name = "ruff", specifier = ">=0.6.2" },
 ]
 
 [[package]]

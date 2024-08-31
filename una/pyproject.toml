@@ -36,7 +36,12 @@ repository = "https://github.com/carderne/una"
 una = "una.cli:app"
 
 [tool.uv]
-dev-dependencies = []
+dev-dependencies = [
+    "pytest >= 8.3.1",
+    "basedpyright >= 1.15.2",
+    "mkdocs-material >= 9.5.31",
+    "ruff >= 0.6.2",
+]
 
 [build-system]
 requires = ["hatchling", "hatch-vcs"]

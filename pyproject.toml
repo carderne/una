@@ -4,12 +4,7 @@ version = "0.0"
 requires-python = ">= 3.11"
 
 [tool.uv]
-dev-dependencies = [
-    "pytest >= 8.3.1",
-    "basedpyright >= 1.15.2",
-    "mkdocs-material >= 9.5.31",
-    "ruff >= 0.6.2",
-]
+dev-dependencies = []
 package = false
 
 [tool.uv.workspace]
