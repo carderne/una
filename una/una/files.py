@@ -152,8 +152,7 @@ def _update_root_pyproj(path: Path, dependencies: str) -> str:
 
     ns: str = toml["project"]["name"]  # pyright:ignore[reportIndexIssue,reportAssignmentType]
     requires_python: str = toml["project"]["requires-python"]  # pyright:ignore[reportIndexIssue,reportAssignmentType]
-    toml.pop("project")  # pyright:ignore[reportUnknownMemberType]
-    toml.pop("build-system")  # pyright:ignore[reportUnknownMemberType]
+    toml["tool"]["uv"].add("package", False)  # pyright:ignore[reportUnknownMemberType]
     toml["tool"]["uv"]["workspace"] = {"members": _EXAMPLE_MEMBERS}  # pyright:ignore[reportIndexIssue]
     toml["tool"]["una"] = {"namespace": ns, "requires-python": requires_python}  # pyright:ignore[reportIndexIssue]
     with pyproj.open("w") as f:

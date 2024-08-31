@@ -87,4 +87,3 @@ def create_workspace_command():
     files.create_workspace(path)
     console.print("Success!")
     console.print("Set up workspace in current directory.")
-    console.print("Remember to delete the src/ directory")
