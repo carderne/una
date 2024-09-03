@@ -5,7 +5,7 @@ from una import config
 from una.types import ConfWrapper, ExtDep, IntDep, PackageDeps
 
 
-def get_packages(root: Path, ns: str) -> list[PackageDeps]:
+def get_packages(root: Path) -> list[PackageDeps]:
     confs = get_package_confs(root)
     packages = [_get_package_deps(c) for c in confs if Path.cwd().name in c.path.as_posix()]
     return packages

@@ -64,7 +64,7 @@ def test_import():
 
 
 def create_workspace(path: Path) -> None:
-    ns = _update_root_pyproj(path, _EXAMPLE_IMPORT)
+    ns = _update_root_pyproj(path)
 
     app_content = _EXAMPLE_APP_CODE.format(ns=ns, lib_name=_EXAMPLE_LIB_NAME)
     app_deps = _EXAMPLE_INTERNAL_DEPS.format(dep_name=_EXAMPLE_LIB_NAME)
@@ -145,14 +145,14 @@ def _create_dir(path: Path, dir_name: str, keep: bool = False) -> Path:
     return d
 
 
-def _update_root_pyproj(path: Path, dependencies: str) -> str:
+def _update_root_pyproj(path: Path) -> str:
     pyproj = path / consts.PYPROJ_FILE
     with pyproj.open() as f:
         toml = tomlkit.parse(f.read())
 
     ns: str = toml["project"]["name"]  # pyright:ignore[reportIndexIssue,reportAssignmentType]
     requires_python: str = toml["project"]["requires-python"]  # pyright:ignore[reportIndexIssue,reportAssignmentType]
-    toml["tool"]["uv"].add("package", False)  # pyright:ignore[reportUnknownMemberType]
+    toml["tool"]["uv"].add("package", False)  # pyright:ignore[reportUnknownMemberType,reportIndexIssue,reportAttributeAccessIssue,reportArgumentType]
     toml["tool"]["uv"]["workspace"] = {"members": _EXAMPLE_MEMBERS}  # pyright:ignore[reportIndexIssue]
     toml["tool"]["una"] = {"namespace": ns, "requires-python": requires_python}  # pyright:ignore[reportIndexIssue]
     with pyproj.open("w") as f:

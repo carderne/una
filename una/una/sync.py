@@ -5,7 +5,7 @@ from una import config, consts
 from una.types import CheckDiff, Conf, UvSourceIsWorkspace
 
 
-def sync_package(root: Path, diff: CheckDiff, ns: str):
+def sync_package(diff: CheckDiff):
     _rewrite_package_pyproj(diff.package.path, diff.int_dep_diff)
 
 
