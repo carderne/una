@@ -21,7 +21,7 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 
-dependencies = ["hatchling"]
+dependencies = ["hatchling >= 1.25.0"]
 
 [project.urls]
 homepage = "https://github.com/carderne/una"

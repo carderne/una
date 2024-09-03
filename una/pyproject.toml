@@ -36,12 +36,7 @@ repository = "https://github.com/carderne/una"
 una = "una.cli:app"
 
 [tool.uv]
-dev-dependencies = [
-    "pytest >= 8.3.1",
-    "basedpyright >= 1.15.2",
-    "mkdocs-material >= 9.5.31",
-    "ruff >= 0.6.2",
-]
+dev-dependencies = []
 
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
@@ -59,7 +54,6 @@ venvPath = ".."
 venv = ".venv"
 pythonVersion = "3.11"
 strict = ["**/*.py"]
-extraPaths = ["plugins/hatch"]
 reportUnnecessaryTypeIgnoreComment = true
 reportImplicitOverride = false
 reportUnusedCallResult = false

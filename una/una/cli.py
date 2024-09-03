@@ -36,7 +36,7 @@ def sync_command(
     ns = config.get_ns(root)
     alias_list = alias.split(",") if alias else []
 
-    packages = package_deps.get_packages(root, ns)
+    packages = package_deps.get_packages(root)
     diffs: list[CheckDiff] = []
     for p in packages:
         d = check.check_package_deps(root, ns, p, alias_list)
@@ -56,7 +56,7 @@ def sync_command(
         raise Exit()
 
     for d in diffs:
-        sync.sync_package(root, d, ns)
+        sync.sync_package(d)
         if not quiet:
             for c in d.int_dep_diff:
                 console.print(f"[pkg]{d.package.name}[/] adding dep [dep]{c}[/]")

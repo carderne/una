@@ -11,7 +11,7 @@ class FakeDist:
         self.data = data
         self.metadata = {"name": name}
 
-    def read_text(self, *args: object) -> str:
+    def read_text(self, *_: object) -> str:
         return self.data
 
 
