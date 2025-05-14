@@ -34,7 +34,7 @@ def get_dependencies(path: Path) -> tuple[list[str], list[str]]:
             if sources[d]["workspace"]:
                 int_deps.append(d)
                 continue
-        ext_deps.append(d.replace(" ", ""))
+        ext_deps.append(d)
     return (ext_deps, int_deps)
 
 

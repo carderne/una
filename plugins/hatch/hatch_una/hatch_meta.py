@@ -33,7 +33,7 @@ class UnaMetaHook(MetadataHookInterface):
             # load all third-party dependencies from this internal dependency into the
             # project.dependencies table
             dep_deps, _ = util.get_dependencies(dep_path)
-            dep_deps = [d.strip().replace(" ", "") for d in dep_deps]
+            dep_deps = [d.strip() for d in dep_deps]
             add_deps.extend(dep_deps)
 
         metadata["dependencies"] = list(set(ext_deps + add_deps))
