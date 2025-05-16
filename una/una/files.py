@@ -65,8 +65,9 @@ def test_import():
 
 def create_workspace(path: Path) -> None:
     ns = _update_root_pyproj(path)
+    ns_norm = ns.replace("_", "-")
 
-    app_content = _EXAMPLE_APP_CODE.format(ns=ns, lib_name=_EXAMPLE_LIB_NAME)
+    app_content = _EXAMPLE_APP_CODE.format(ns=ns_norm, lib_name=_EXAMPLE_LIB_NAME)
     app_deps = _EXAMPLE_INTERNAL_DEPS.format(dep_name=_EXAMPLE_LIB_NAME)
     lib_content = _EXAMPLE_LIB_CODE
     create_package(
@@ -98,6 +99,7 @@ def create_package(
     dependencies: str,
     internal_deps: str,
 ) -> None:
+    ns_norm = ns.replace("-", "_")
     conf = config.load_conf(path)
     requires_python = conf.tool.una.requires_python or ">= 3.11"
 
@@ -112,7 +114,7 @@ def create_package(
     _create_file(
         test_dir,
         f"test_{name}_import.py",
-        content=_TEMPLATE_TEST_CODE.format(ns=ns, name=name),
+        content=_TEMPLATE_TEST_CODE.format(ns=ns_norm, name=name),
     )
     pyproj_content = _TEMPLATE_PYPROJ.format(
         name=name,

@@ -52,7 +52,8 @@ def _with_unknown_deps(root: Path, ns: str, int_dep_imports: Imports) -> Imports
 
 
 def _only_int_dep_imports(imports: set[str], ns: str) -> set[str]:
-    return {i for i in imports if i.startswith(ns)}
+    ns_norm = ns.replace("-", "_")
+    return {i for i in imports if i.startswith(ns_norm)}
 
 
 def _only_int_dep_name(int_dep_imports: set[str]) -> set[str]:
@@ -76,8 +77,9 @@ def _extract_ns_from_imports(imports: set[str]) -> set[str]:
 
 
 def _get_ext_dep_imports(all_imports: Imports, ns: str) -> Imports:
+    ns_norm = ns.replace("-", "_")
     top_level_imports = {k: _extract_ns_from_imports(v) for k, v in all_imports.items()}
-    to_exclude = stdlib.get_stdlib().union({ns})
+    to_exclude = stdlib.get_stdlib().union({ns_norm})
     with_third_party = {k: v - to_exclude for k, v in top_level_imports.items()}
     return {k: v for k, v in with_third_party.items() if v}
 
