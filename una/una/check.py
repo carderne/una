@@ -10,7 +10,9 @@ from una.models import CheckDiff, Imports, PackageDeps
 def check_package_deps(root: Path, ns: str, package: PackageDeps, alias: list[str]) -> CheckDiff:
     dep_pkgs = {c for c in package.int_deps}
     all_paths = [c.path for c in package_deps.get_package_confs(root)]
-    dep_paths = {p for p in all_paths if p.name in {d.name for d in dep_pkgs}}
+    dep_paths = {
+        p for p in all_paths if p.name in {d.name for d in dep_pkgs} or p.name == package.path.name
+    }
 
     all_imports = parse.fetch_all_imports(dep_paths)
     int_dep_imports = _get_int_dep_imports(all_imports, root, ns)
@@ -69,7 +71,13 @@ def _extract_int_dep_imports(all_imports: Imports, ns: str) -> Imports:
 def _get_int_dep_imports(all_imports: Imports, root: Path, ns: str) -> Imports:
     extracted = _extract_int_dep_imports(all_imports, ns)
     res = _with_unknown_deps(root, ns, extracted)
-    return res
+    without_self = {k: _exclude_self(v, k) for k, v in res.items()}
+    return without_self
+
+
+def _exclude_self(imports: set[str], self_name: str) -> set[str]:
+    without_self = {i for i in imports if i != self_name}
+    return without_self
 
 
 def _extract_ns_from_imports(imports: set[str]) -> set[str]:
