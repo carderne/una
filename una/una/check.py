@@ -7,6 +7,25 @@ from una import distributions, package_deps, parse, stdlib
 from una.models import CheckDiff, Imports, PackageDeps
 
 
+def get_all_package_imports(root: Path, ns: str, package: PackageDeps) -> set[str]:
+    dep_pkgs = {c for c in package.int_deps}
+    all_paths = [c.path for c in package_deps.get_package_confs(root)]
+    dep_paths = {
+        p for p in all_paths if p.name in {d.name for d in dep_pkgs} or p.name == package.path.name
+    }
+
+    all_imports = parse.fetch_all_imports(dep_paths)
+    int_dep_imports = _get_int_dep_imports(all_imports, root, ns)
+    ext_dep_imports = _get_ext_dep_imports(all_imports, ns)
+    ext_dep_imports = {k: v for k, v in ext_dep_imports.items() if k == package.name}
+
+    all_imports = {k for k in int_dep_imports.keys()} | {
+        item for v in int_dep_imports.values() for item in v
+    }
+
+    return all_imports
+
+
 def check_package_deps(root: Path, ns: str, package: PackageDeps, alias: list[str]) -> CheckDiff:
     dep_pkgs = {c for c in package.int_deps}
     all_paths = [c.path for c in package_deps.get_package_confs(root)]

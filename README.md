@@ -143,6 +143,16 @@ docker run --rm -it unarepo-printer \
                       ||     ||
 ```
 
+You can also get a handy table of your internal inter-dependencies:
+```bash
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┓
+┃ Package \ Import ┃ printer ┃ greeter ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━┩
+│          printer │ ✓       │ ✓       │
+│          greeter │ ✓       │         │
+└──────────────────┴─────────┴─────────┘
+```
+
 ## Installation
 The CLI tool isn't strictly necessary, as all the stuff that lets the monorepo builds work is in the separate (and tiny) [hatch-una](plugins/hatch) package.
 But you will likely struggle to manage your monorepo without the tool!

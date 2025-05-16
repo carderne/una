@@ -2,11 +2,12 @@ from pathlib import Path
 from typing import Annotated
 
 from rich.console import Console
+from rich.table import Table
 from rich.theme import Theme
 from typer import Argument, Exit, Option, Typer
 
 from una import check, config, files, package_deps, sync
-from una.models import CheckDiff
+from una.models import CheckDiff, Imports
 
 app = Typer(name="una", no_args_is_help=True, add_completion=False)
 create = Typer(no_args_is_help=True)
@@ -18,8 +19,50 @@ app.add_typer(
 
 
 def rich_console() -> Console:
-    theme = Theme({"pkg": "#8A2BE2", "dep": "#32CD32"})
+    theme = Theme(
+        {
+            "pkg": "#8A2BE2",  # Purple for package names
+            "dep": "#32CD32",  # Green for dependencies
+            "header": "bold #FFFFFF on #555555",  # White text on gray for headers
+            "check": "bold green",  # Green for checkmarks
+        }
+    )
     return Console(theme=theme)
+
+
+@app.command("tree")
+def tree_command():
+    root = config.get_workspace_root()
+    ns = config.get_ns(root)
+    packages = package_deps.get_packages(root)
+    package_imports: Imports = {}
+    for package in packages:
+        imports = check.get_all_package_imports(root, ns, package)
+        package_imports[package.name] = imports
+    display_dependency_table(package_imports)
+
+
+def display_dependency_table(package_imports: Imports) -> None:
+    console = rich_console()
+    packages_sorted = dict(sorted(package_imports.items(), key=lambda x: len(x[1]), reverse=True))
+    all_imports = set(item for imports in package_imports.values() for item in imports)
+
+    table = Table(show_header=True, header_style="header")
+    table.add_column("Package \\ Import", style="pkg", justify="right")
+
+    for package in packages_sorted.keys():
+        table.add_column(package, style="dep")
+
+    for package, imports in packages_sorted.items():
+        row = [package]
+        for imp in all_imports:
+            if imp in imports:
+                row.append("[check]✓[/check]")
+            else:
+                row.append(" ")
+
+        table.add_row(*row)
+    console.print(table)
 
 
 @app.command("sync")
