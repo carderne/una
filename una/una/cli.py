@@ -45,17 +45,16 @@ def tree_command():
 def display_dependency_table(package_imports: Imports) -> None:
     console = rich_console()
     packages_sorted = dict(sorted(package_imports.items(), key=lambda x: len(x[1]), reverse=True))
-    all_imports = set(item for imports in package_imports.values() for item in imports)
 
     table = Table(show_header=True, header_style="header")
-    table.add_column("Package \\ Import", style="pkg", justify="right")
+    table.add_column("Package \\ Imports", style="pkg", justify="right")
 
     for package in packages_sorted.keys():
         table.add_column(package, style="dep")
 
     for package, imports in packages_sorted.items():
         row = [package]
-        for imp in all_imports:
+        for imp in packages_sorted.keys():
             if imp in imports:
                 row.append("[check]✓[/check]")
             else:

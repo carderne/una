@@ -145,12 +145,12 @@ docker run --rm -it unarepo-printer \
 
 You can also get a handy table of your internal inter-dependencies:
 ```bash
-┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┓
-┃ Package \ Import ┃ printer ┃ greeter ┃
-┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━┩
-│          printer │ ✓       │ ✓       │
-│          greeter │ ✓       │         │
-└──────────────────┴─────────┴─────────┘
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┓
+┃ Package \ Imports ┃ printer ┃ greeter ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━┩
+│           printer │ ✓       │ ✓       │
+│           greeter │         │ ✓       │
+└───────────────────┴─────────┴─────────┘
 ```
 
 ## Installation
