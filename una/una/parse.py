@@ -31,14 +31,22 @@ def _parse_imports(node: ast.AST) -> list[str | None]:
 
 
 @lru_cache
-def _parse_module(path: Path) -> ast.AST:
+def _parse_module(path: Path) -> ast.AST | None:
     with open(path.as_posix(), encoding="utf-8", errors="ignore") as f:
-        tree = ast.parse(f.read(), path.name)
-    return tree
+        try:
+            tree = ast.parse(f.read(), path.name)
+            return tree
+        except SyntaxError as err:
+            text = f"\n{err.text.strip()}" if err.text else ""
+            offset_msg = f"\n{' ' * (err.offset - 1)}^" if (err.offset and err.text) else ""
+            print(f"Syntax Error in {err.filename} line {err.lineno}{text}{offset_msg}")
+    return None
 
 
 def _extract_imports(path: Path) -> list[str]:
     tree = _parse_module(path)
+    if tree is None:
+        return []
     return [i for node in ast.walk(tree) for i in _parse_imports(node) if i is not None]
 
 
