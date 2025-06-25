@@ -3,6 +3,7 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
+
 PYPROJ = "pyproject.toml"
 
 
@@ -23,10 +24,7 @@ def get_members() -> list[str]:
 def get_dependencies(path: Path) -> tuple[list[str], list[str]]:
     conf = load_conf(path)
     all_deps: list[str] = conf["project"].get("dependencies", [])  # pyright:ignore[reportAny]
-    try:
-        sources: dict[str, dict[str, bool]] = conf["tool"]["uv"]["sources"]
-    except KeyError as e:
-        raise KeyError(f"No tool.uv.sources table for '{path}'") from e
+    sources: dict[str, dict[str, bool]] = conf.get("tool", {}).get("uv", {}).get("sources", {})  # pyright:ignore[reportAny]
 
     sources = {_clean_dependency_name(k): v for k, v in sources.items()}
 
