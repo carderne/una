@@ -65,7 +65,7 @@ requires = ["hatchling", "hatch-una"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.hooks.una-build]
-[tool.hatch.build.hooks.una-meta]
+[tool.hatch.metadata.hooks.una-meta]
 ```
 
 4. Then you can build from that package directory and Una will inject everything that is needed:
