@@ -23,9 +23,9 @@ classifiers = [
 
 dependencies = [
   "dataclasses-json ~= 0.6",
-  "rich ~= 13.1",
-  "tomlkit ~= 0.10",
-  "typer>=0.15.4",
+  "rich >= 13.1",
+  "tomlkit >= 0.10, < 1.0.0",
+  "typer >= 0.15.4, < 1.0.0",
 ]
 
 [project.urls]
@@ -36,7 +36,6 @@ repository = "https://github.com/carderne/una"
 una = "una.cli:app"
 
 [tool.uv]
-dev-dependencies = []
 
 [build-system]
 requires = ["hatchling", "hatch-vcs"]

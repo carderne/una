@@ -5,13 +5,15 @@ requires-python = ">=3.11"
 dependencies = ["una", "hatch-una"]
 
 [tool.uv]
-dev-dependencies = [
+package = false
+
+[dependency-groups]
+dev = [
     "pytest >= 8.3.1",
     "basedpyright >= 1.15.2",
     "mkdocs-material >= 9.5.31",
     "ruff >= 0.6.2",
 ]
-package = false
 
 [tool.uv.sources]
 una = { workspace = true }

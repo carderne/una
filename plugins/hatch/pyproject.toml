@@ -33,7 +33,6 @@ una-build = "hatch_una.hatch_build"
 una-meta = "hatch_una.hatch_meta"
 
 [tool.uv]
-dev-dependencies = []
 
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
